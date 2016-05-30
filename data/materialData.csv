@@ -1,0 +1,8 @@
+"country","year","product","direction","unit","quantity"
+Albania,2012,coal,import,Kg,1000
+Zambia,2012,coal,import,Kg,300
+Tsirtaki,2012,coal,export,Kg,700
+US,2012,coal,export,Kg,600
+US,2012,gold,export,Kg,30
+US,2012,batteries,export,Kg,80
+US,2011,coal,export,Kg,900

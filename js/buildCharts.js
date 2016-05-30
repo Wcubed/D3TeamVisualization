@@ -15,6 +15,8 @@ d3_queue.queue()
 
 function createGraphs(error, materialData) {
 
+    console.log(materialData);
+
     // The filter and update configuration.
     var config = {
         // Filters.
@@ -47,5 +49,7 @@ function createGraphs(error, materialData) {
 
 // Coerces the data types on load.
 function coerceTypes(d) {
+    d.year = +d.year;
+    d.quantity = +d.quantity;
     return d;
 }
