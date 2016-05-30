@@ -7,9 +7,14 @@
  * Date: 30-05-2016
  */
 
-function createFlowChart() {
+// createFlowchart.
+// container => string => The name of the container this chart should go in.
+function createFlowchart(container) {
 
     // ---- Build the chart ----------------------------------------------------
+
+    d3.select(container).append("svg")
+        .classed("flowchart", true);
 
     dataPointClass = ".datapoint";
 

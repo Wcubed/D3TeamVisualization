@@ -24,14 +24,18 @@ function createGraphs(error, materialData) {
         'transitionDuration': 1, // In seconds.
     }
 
+    // ---- Build the framework ------------------------------------------------
+
+    var mainContainer = d3.select("body").append("main");
+
     // ---- Build the plots ----------------------------------------------------
 
-    var flowChart = createFlowChart();
+    var flowchart = createFlowchart(container);
 
     // ---- Plot update function -----------------------------------------------
 
     function updatePlots(configuration) {
-        flowChart.update();
+        flowchart.update();
     }
 
     // Run the first update.
