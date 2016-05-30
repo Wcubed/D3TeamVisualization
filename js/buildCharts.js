@@ -30,12 +30,12 @@ function createGraphs(error, materialData) {
 
     // ---- Build the plots ----------------------------------------------------
 
-    var flowchart = createFlowchart(container);
+    var flowchart = createFlowchart("main");
 
     // ---- Plot update function -----------------------------------------------
 
-    function updatePlots(configuration) {
-        flowchart.update();
+    function updatePlots(config) {
+        flowchart.update(config);
     }
 
     // Run the first update.

@@ -7,19 +7,27 @@
  * Date: 30-05-2016
  */
 
-function createChart() {
+ function createChart(container) {
 
-    // ---- Build the chart ----------------------------------------------------
+     // The return value.
+     var chart = {
+         'datapoints': ".datapoints",
+         'class': "chart"
+     };
 
-    dataPointClass = ".datapoint";
 
-    // ---- Update function ----------------------------------------------------
+     // ---- Build the chart ----------------------------------------------------
 
-    var updateFunction = function() {
+     d3.select(container).append("svg")
+         .classed(chart.class, true);
 
-    }
+     // ---- Update function ----------------------------------------------------
 
-    // ---- Return the values --------------------------------------------------
+     chart.update = function() {
+         console.log("update");
+     }
 
-    return { 'update': updateFunction, 'dataClass': dataPointClass};
-}
+     // ---- Return the values --------------------------------------------------
+
+     return chart;
+ }

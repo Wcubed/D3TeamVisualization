@@ -11,20 +11,25 @@
 // container => string => The name of the container this chart should go in.
 function createFlowchart(container) {
 
+    // The return value.
+    var flowchart = {
+        'datapoints': ".datapoints",
+        'class': "flowchart"
+    };
+
+
     // ---- Build the chart ----------------------------------------------------
 
     d3.select(container).append("svg")
-        .classed("flowchart", true);
-
-    dataPointClass = ".datapoint";
+        .classed(flowchart.class, true);
 
     // ---- Update function ----------------------------------------------------
 
-    var updateFunction = function() {
-
+    flowchart.update = function(config) {
+        console.log("update");
     }
 
     // ---- Return the values --------------------------------------------------
 
-    return { 'update': updateFunction, 'dataClass': dataPointClass};
+    return flowchart;
 }
