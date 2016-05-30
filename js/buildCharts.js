@@ -21,14 +21,14 @@ function createGraphs(error, materialData) {
     // The filter and update configuration.
     var config = {
         // Data.
-        'nestedData': nestData(materialData),
+        nestedData: nestData(materialData),
 
         // Filters.
-        'year': 2012,
-        'product': "coal",
+        year: 2012,
+        product: "coal",
 
         // Update information.
-        'transitionDuration': 1, // In seconds.
+        transitionDuration: 1, // In seconds.
     }
 
     // ---- Build the framework ------------------------------------------------
