@@ -14,13 +14,18 @@ d3_queue.queue()
 
 
 function createGraphs(error, materialData) {
+    if (error) throw error;
 
     console.log(materialData);
 
     // The filter and update configuration.
     var config = {
+        // Data.
+        'nestedData': nestData(materialData),
+
         // Filters.
-        'year': 2015,
+        'year': 2012,
+        'product': "coal",
 
         // Update information.
         'transitionDuration': 1, // In seconds.
@@ -32,7 +37,7 @@ function createGraphs(error, materialData) {
 
     // ---- Build the plots ----------------------------------------------------
 
-    var flowchart = createFlowchart("main");
+    var flowchart = createFlowchart("main", config);
 
     // ---- Plot update function -----------------------------------------------
 
@@ -52,4 +57,17 @@ function coerceTypes(d) {
     d.year = +d.year;
     d.quantity = +d.quantity;
     return d;
+}
+
+
+function nestData(data) {
+    var nest = d3.nest()
+        .key(function(d) { return d.year; })
+        .key(function(d) { return d.product; })
+        .key(function(d) { return d.direction; })
+        .key(function(d) { return d.country; })
+        .rollup(function(leaves) { return d3.sum(leaves, function(d) {  return d.quantity; }); })
+        .map(data, d3.map);
+
+    return nest;
 }
