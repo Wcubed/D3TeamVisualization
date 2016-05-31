@@ -38,6 +38,17 @@ function createGraphs(error, materialData) {
         this[i] = +d;
     }, config.yearList);
 
+    // Make a list of all available commodities.
+    config.commodityList = {};
+
+    config.nestedData.values().forEach( function(d) {
+        d.keys().forEach( function (k) {
+            config.commodityList[k] = true;
+        });
+    });
+
+    console.log(config.commodityList);
+
     // ---- Hover/filter functions ---------------------------------------------
 
     var flowchartOver = function(d) {
@@ -67,6 +78,15 @@ function createGraphs(error, materialData) {
 
     var filterContainer = mainContainer.append("div")
         .classed("filter-container", true);
+
+    // Commodity selectors.
+    var commoditySelector = filterContainer.selectAll("div.commodity-selector")
+        .data(Object.keys(config.commodityList))
+      .enter().append("div")
+        .classed("commodity-selector", true);
+
+    commoditySelector.append("p")
+        .html(function(d) { return d; });
 
     var yearSlider = filterContainer.append("input")
         .classed("year-slider", true)

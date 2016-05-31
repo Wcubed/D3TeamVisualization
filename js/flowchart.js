@@ -152,9 +152,11 @@ function createFlowchart(container, config) {
 
         // Chart boxes.
         newImportDatapoint.append("rect")
-            .attr("height", 0);
+            .attr("height", 0)
+            .style("fill", "rgb(1, 87, 12)");
         newExportDatapoint.append("rect")
-            .attr("height", 0);
+            .attr("height", 0)
+            .style("fill", "rgb(1, 87, 12)");
 
         // ---- Update ----
 

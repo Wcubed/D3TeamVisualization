@@ -5,6 +5,28 @@ body {
 
 /* ---- Filter container ---- */
 
+/* -- Commodity selectors -- */
+
+.commodity-selector {
+    display: block;
+    float: left;
+
+    width: 5rem;
+    height: 5rem;
+    margin: 0.2rem;
+    padding: 0.2rem;
+
+    background-color: rgb(1, 87, 12);
+    color: rgb(226, 226, 226);
+    border: solid rgb(226, 226, 226) 1px;
+}
+
+.commodity-selector p {
+    font-size: 11px;
+}
+
+/* -- /Commodity selectors -- */
+
 .filter-container .year-slider {
     width: 100%;
 }
@@ -19,7 +41,7 @@ body {
 }
 
 .flowchart text {
-    fill: white;
+    fill: rgb(226, 226, 226);
     text-anchor: middle;
     alignment-baseline: middle;
 
