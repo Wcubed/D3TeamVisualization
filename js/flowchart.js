@@ -18,6 +18,10 @@ function createFlowchart(container, config) {
     size.width = size.totalWidth - size.margin.left - size.margin.right;
     size.height = size.totalHeight - size.margin.top - size.margin.bottom;
 
+    // Setup the import / export bar sizes.
+    size.barMargin = size.width * 0.1;
+    size.barWidth = (size.width - size.barMargin) / 2;
+
     // The return value.
     var flowchart = {
         class: "flowchart",
@@ -28,10 +32,7 @@ function createFlowchart(container, config) {
         "." + flowchart.class + " ." + flowchart.datapointClass;
 
     // Scales.
-    var importY = d3.scale.linear()
-        .range([0, size.height]);
-
-    var exportY = d3.scale.linear()
+    var yscale = d3.scale.linear()
         .range([0, size.height]);
 
 
@@ -65,49 +66,66 @@ function createFlowchart(container, config) {
             exportData[exportData.length-1].y1
         );
 
-        importY.domain([0, maxScaleSize]);
-        exportY.domain([0, maxScaleSize]);
+        yscale.domain([0, maxScaleSize]);
+
+        // Containers.
+        var importContainer = chart.append("g")
+            .attr("transform", "translate(0, 0)")
+            .classed("import", true);
+
+        var exportContainer = chart.append("g")
+            .attr("transform", "translate(" + (size.barWidth + size.barMargin) + ", 0)")
+            .classed("export", true);
 
         // ---- Datapoints -----------------------------------------------------
 
-        var importDatapoint = chart.selectAll("g.import")
+        var importDatapoint = importContainer.selectAll("g")
             .data(importData);
 
-        var exportDatapoint = chart.selectAll("g.export")
+        var exportDatapoint = exportContainer.selectAll("g")
             .data(exportData);
 
-        // -- Enter --
+        // ---- Enter ----
 
         var newImportDatapoint = importDatapoint.enter().append("g")
-            .classed(flowchart.datapointClass, true)
-            .classed("import", true);
+            .classed(flowchart.datapointClass, true);
 
         var newExportDatapoint = exportDatapoint.enter().append("g")
-            .classed(flowchart.datapointClass, true)
-            .classed("export", true);
+            .classed(flowchart.datapointClass, true);
 
+
+        // Chart boxes.
         newImportDatapoint.append("rect");
         newExportDatapoint.append("rect");
 
-        // -- Update --
+        // Country name.
+        newImportDatapoint.append("svg:text")
+            .html(function(d) { return d.key.substring(0, 3); });
+        newExportDatapoint.append("svg:text")
+            .html(function(d) { return d.key.substring(0, 3); });
 
-        importDatapoint.select("rect")
-            .attr("x", 0)
-            .attr("y", function(d) { return importY(d.y0); })
-            .attr("width", 50)
-            .attr("height", function(d) { return importY(d.y1 - d.y0); });
+        // ---- Update ----
 
-        exportDatapoint.select("rect")
-            .attr("x", 60)
-            .attr("y", function(d) { return exportY(d.y0); })
-            .attr("width", 50)
-            .attr("height", function(d) { return exportY(d.y1 - d.y0); });
+        var datapoint = d3.selectAll(flowchart.datapointSelector);
 
-        // -- Remove --
+        datapoint.attr("transform", function(d) {
+            return "translate(" +
+            "0," +
+            yscale(d.y0) + ")";
+        });
+
+        datapoint.select("rect")
+            .attr("width", size.barWidth)
+            .attr("height", function(d) { return yscale(d.y1 - d.y0); });
+
+        datapoint.select("text")
+            .attr("x", size.barWidth / 2)
+            .attr("y", function(d) { return yscale((d.y1 - d.y0)/2) });
+
+        // ---- Remove ----
 
         importDatapoint.exit()
             .remove();
-
         exportDatapoint.exit()
             .remove();
     }
