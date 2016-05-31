@@ -20,9 +20,12 @@ function createFlowchart(container, config) {
 
     // The return value.
     var flowchart = {
-        datapoints: ".datapoints",
         class: "flowchart",
+        datapointClass: "datapoint",
     };
+
+    flowchart.datapointSelector =
+        "." + flowchart.class + " ." + flowchart.datapointClass;
 
     // Scales.
     var importY = d3.scale.linear()
@@ -76,9 +79,11 @@ function createFlowchart(container, config) {
         // -- Enter --
 
         var newImportDatapoint = importDatapoint.enter().append("g")
+            .classed(flowchart.datapointClass, true)
             .classed("import", true);
 
         var newExportDatapoint = exportDatapoint.enter().append("g")
+            .classed(flowchart.datapointClass, true)
             .classed("export", true);
 
         newImportDatapoint.append("rect");

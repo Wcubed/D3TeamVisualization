@@ -37,10 +37,28 @@ function createGraphs(error, materialData) {
 
     var flowchart = createFlowchart("main", config);
 
+    // ---- Hover functions ----------------------------------------------------
+
+    var flowchartOver = function(d) {
+        d3.select(this)
+            .classed("hover", true);
+    }
+
+    var flowchartOut = function(d) {
+        d3.select(this)
+            .classed("hover", false);
+    }
+
     // ---- Plot update function -----------------------------------------------
 
     function updatePlots(config) {
         flowchart.update(config);
+
+        // ---- Add the hover functions ----------------------------------------
+
+        d3.selectAll(flowchart.datapointSelector)
+            .on('mouseover', flowchartOver)
+            .on('mouseout', flowchartOut);
     }
 
     // Run the first update.

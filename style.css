@@ -11,4 +11,8 @@ body {
     shape-rendering: crispEdges;
 }
 
+.flowchart .datapoint.hover rect {
+    fill: rgb(0, 124, 16);
+}
+
 /* ---- /Flowchart ---- */
