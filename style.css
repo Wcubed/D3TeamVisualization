@@ -3,6 +3,14 @@ body {
     background-color: rgb(15, 15, 15);
 }
 
+/* ---- Filter container ---- */
+
+.filter-container .year-slider {
+    width: 100%;
+}
+
+/* ---- /Filter container ---- */
+
 /* ---- Flowchart ---- */
 
 .flowchart .datapoint rect {

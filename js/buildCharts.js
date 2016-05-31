@@ -30,18 +30,13 @@ function createGraphs(error, materialData) {
         transitionDuration: 1, // In seconds.
     }
 
-    console.log(config.nestedData.get(config.year).get(config.commodity));
+    // Make a list of all available years, as integers.
+    config.yearList = config.nestedData.keys();
+    config.yearList.forEach( function(d, i) {
+        this[i] = +d;
+    }, config.yearList);
 
-    // ---- Build the framework ------------------------------------------------
-
-    var mainContainer = d3.select("body").append("main");
-
-    // ---- Build the plots ----------------------------------------------------
-
-    var flowchart = createFlowchart("main", config);
-    var scatterplot = createScatterplot("main", config);
-
-    // ---- Hover functions ----------------------------------------------------
+    // ---- Hover/filter functions ---------------------------------------------
 
     var flowchartOver = function(d) {
         config.hoveredCountry = d.key;
@@ -53,11 +48,43 @@ function createGraphs(error, materialData) {
         updatePlots(config);
     }
 
+    // Change the year.
+    var yearSliderInput = function() {
+        config.year = this.value;
+        updatePlots(config);
+    }
+
+    // ---- Build the main container -------------------------------------------
+
+    var mainContainer = d3.select("body").append("main");
+
+    // ---- Create the filter area ---------------------------------------------
+
+    var filterContainer = mainContainer.append("div")
+        .classed("filter-container", true);
+
+    var yearSlider = filterContainer.append("input")
+        .classed("year-slider", true)
+        .attr("type", "range")
+        .attr("min", Math.min.apply(null, config.yearList))
+        .attr("max", Math.max.apply(null, config.yearList))
+        .attr("step", 1)
+        .on("input", yearSliderInput);
+
+    // ---- Build the plots ----------------------------------------------------
+
+    var flowchart = createFlowchart("main", config);
+    var scatterplot = createScatterplot("main", config);
+
     // ---- Plot update function -----------------------------------------------
 
     function updatePlots(config) {
         flowchart.update(config);
         scatterplot.update(config);
+
+        // --- Update filters --------------------------------------------------
+
+        yearSlider.attr("value", config.year);
 
         // ---- Add the hover functions ----------------------------------------
 
