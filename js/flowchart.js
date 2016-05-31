@@ -14,7 +14,7 @@ function createFlowchart(container, config) {
     // Setup margins and graph size.
     var size = { margin: { top: 50, right: 50, bottom: 50, left: 50 } };
     size.totalWidth = 600;
-    size.totalHeight = 600;
+    size.totalHeight = 900;
     size.width = size.totalWidth - size.margin.left - size.margin.right;
     size.height = size.totalHeight - size.margin.top - size.margin.bottom;
 
@@ -31,9 +31,30 @@ function createFlowchart(container, config) {
     flowchart.datapointSelector =
         "." + flowchart.class + " ." + flowchart.datapointClass;
 
-    // Scales.
-    var yscale = d3.scale.linear()
-        .range([0, size.height]);
+    // ---- Location functions -------------------------------------------------
+
+    var importX = function(d) { return 0; };
+        exportX = function(d) { return size.barMargin + size.barWidth; };
+        barY = function(d) { return yscale(d.y0); };
+        barHeight = function(d) { return yscale(d.y1 - d.y0); };
+
+        importLabelX = function(d) { return importX(d) + size.barWidth / 2; };
+        exportLabelX = function(d) { return exportX(d) + size.barWidth / 2; };
+        labelY = function(d) { return barY(d) + barHeight(d)/2; };
+
+
+    // ---- Label functions ----------------------------------------------------
+
+    var fontSize = 20;
+
+    // Determines whether to display the label or not.
+    var doHideLabel = function(d) {
+        return fontSize > barHeight(d);
+    }
+
+    var labelText = function(d) {
+        return d.key.substring(0, 3);
+    }
 
 
     // ---- Build the chart ----------------------------------------------------
@@ -44,6 +65,10 @@ function createFlowchart(container, config) {
         .attr("height", size.totalHeight)
       .append("g") // Add the margin offset.
         .attr("transform", "translate(" + size.margin.left + "," + size.margin.top + ")");
+
+    // Scales.
+    var yscale = d3.scale.linear()
+        .range([0, size.height]);
 
     // ---- Update function ----------------------------------------------------
 
@@ -77,12 +102,20 @@ function createFlowchart(container, config) {
             .attr("transform", "translate(" + (size.barWidth + size.barMargin) + ", 0)")
             .classed("export", true);
 
+        var labelContainer = chart.append("g");
+
         // ---- Datapoints -----------------------------------------------------
 
         var importDatapoint = importContainer.selectAll("g")
             .data(importData);
 
         var exportDatapoint = exportContainer.selectAll("g")
+            .data(exportData);
+
+        // Labels.
+        var importLabel = labelContainer.selectAll("text.import")
+            .data(importData);
+        var exportLabel = labelContainer.selectAll("text.export")
             .data(exportData);
 
         // ---- Enter ----
@@ -93,16 +126,19 @@ function createFlowchart(container, config) {
         var newExportDatapoint = exportDatapoint.enter().append("g")
             .classed(flowchart.datapointClass, true);
 
+        // Labels.
+        importLabel.enter().append("text")
+            .classed("import", true)
+            .style("font-size", fontSize)
+            .html(labelText);
+        exportLabel.enter().append("text")
+            .classed("export", true)
+            .style("font-size", fontSize)
+            .html(labelText);
 
         // Chart boxes.
         newImportDatapoint.append("rect");
         newExportDatapoint.append("rect");
-
-        // Country name.
-        newImportDatapoint.append("svg:text")
-            .html(function(d) { return d.key.substring(0, 3); });
-        newExportDatapoint.append("svg:text")
-            .html(function(d) { return d.key.substring(0, 3); });
 
         // ---- Update ----
 
@@ -116,17 +152,27 @@ function createFlowchart(container, config) {
 
         datapoint.select("rect")
             .attr("width", size.barWidth)
-            .attr("height", function(d) { return yscale(d.y1 - d.y0); });
+            .attr("height", barHeight);
 
-        datapoint.select("text")
-            .attr("x", size.barWidth / 2)
-            .attr("y", function(d) { return yscale((d.y1 - d.y0)/2) });
+        // Labels.
+        importLabel.attr("x", importLabelX)
+            .attr("y", labelY)
+            .classed("hidden", doHideLabel);
+        exportLabel.attr("x", exportLabelX)
+            .attr("y", labelY)
+            .classed("hidden", doHideLabel);
 
         // ---- Remove ----
 
         importDatapoint.exit()
             .remove();
         exportDatapoint.exit()
+            .remove();
+
+        // Labels.
+        importLabel.exit()
+            .remove();
+        exportLabel.exit()
             .remove();
     }
 

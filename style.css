@@ -15,10 +15,17 @@ body {
     fill: rgb(0, 124, 16);
 }
 
-.flowchart .datapoint text {
+.flowchart text {
     fill: white;
     text-anchor: middle;
     alignment-baseline: middle;
+
+    font-family: sans-serif;
 }
 
 /* ---- /Flowchart ---- */
+
+
+.hidden {
+    display: none;
+}
