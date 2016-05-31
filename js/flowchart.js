@@ -12,27 +12,32 @@
 function createFlowchart(container, config) {
 
     // Setup margins and graph size.
-    var sizes = { margin: { top: 50, right: 50, bottom: 50, left: 50 } };
-    sizes.totalWidth = 600;
-    sizes.totalHeight = 600;
-    sizes.width = sizes.totalWidth - sizes.margin.left - sizes.margin.right;
-    sizes.height = sizes.totalHeight - sizes.margin.top - sizes.margin.bottom;
+    var size = { margin: { top: 50, right: 50, bottom: 50, left: 50 } };
+    size.totalWidth = 600;
+    size.totalHeight = 600;
+    size.width = size.totalWidth - size.margin.left - size.margin.right;
+    size.height = size.totalHeight - size.margin.top - size.margin.bottom;
 
     // The return value.
     var flowchart = {
-        'datapoints': ".datapoints",
-        'class': "flowchart"
+        datapoints: ".datapoints",
+        class: "flowchart",
     };
 
-    var layout = d3.layout.stack();
+    // Scales.
+    var importY = d3.scale.linear()
+        .range([0, size.height]);
+
+    var exportY = d3.scale.linear()
+        .range([0, size.height]);
 
 
     // ---- Build the chart ----------------------------------------------------
 
     var chart = d3.select(container).append("svg")
         .classed(flowchart.class, true)
-        .attr("width", sizes.totalWidth)
-        .attr("height", sizes.totalHeight);
+        .attr("width", size.totalWidth)
+        .attr("height", size.totalHeight);
 
     // ---- Update function ----------------------------------------------------
 
@@ -40,37 +45,61 @@ function createFlowchart(container, config) {
         // Get the currenly selected data.
         var data = config.nestedData
             .get(config.year)
-            .get(config.product);
+            .get(config.commodity);
 
-        var exportData = data.get("export").entries();
-        var importData = data.get("import").entries();
+        var importData = data.get("Import").entries();
+        var exportData = data.get("Export").entries();
 
-        exportData = calcStartAndEnd(exportData);
+        // Calculate the stacking values.
         importData = calcStartAndEnd(importData);
+        exportData = calcStartAndEnd(exportData);
 
-        console.log(exportData);
-        console.log(importData);
+        // Scale domains.
+        var maxScaleSize = Math.max(
+            importData[importData.length-1].y1,
+            exportData[exportData.length-1].y1
+        );
+
+        importY.domain([0, maxScaleSize]);
+        exportY.domain([0, maxScaleSize]);
 
         // ---- Datapoints -----------------------------------------------------
 
-        var exportDatapoint = chart.selectAll("g")
-            .data(exportData.entries());
+        var importDatapoint = chart.selectAll("g.import")
+            .data(importData);
+
+        var exportDatapoint = chart.selectAll("g.export")
+            .data(exportData);
 
         // -- Enter --
 
-        var newExportDatapoint = exportDatapoint.enter().append("g");
+        var newImportDatapoint = importDatapoint.enter().append("g")
+            .classed("import", true);
 
+        var newExportDatapoint = exportDatapoint.enter().append("g")
+            .classed("export", true);
+
+        newImportDatapoint.append("rect");
         newExportDatapoint.append("rect");
 
         // -- Update --
 
+        importDatapoint.select("rect")
+            .attr("x", 12)
+            .attr("y", function(d) { return importY(d.y0); })
+            .attr("width", 10)
+            .attr("height", function(d) { return importY(d.y1 - d.y0); });
+
         exportDatapoint.select("rect")
             .attr("x", 0)
-            .attr("y", 10)
-            .attr("width", 100)
-            .attr("height", 20);
+            .attr("y", function(d) { return exportY(d.y0); })
+            .attr("width", 10)
+            .attr("height", function(d) { return exportY(d.y1 - d.y0); });
 
         // -- Remove --
+
+        importDatapoint.exit()
+            .remove();
 
         exportDatapoint.exit()
             .remove();
@@ -82,16 +111,15 @@ function createFlowchart(container, config) {
 }
 
 
-// Calculates start and end values, aranging the data into bands.
+// Calculates start and end values,
+// stacking the data.
 function calcStartAndEnd(data) {
     var y0 = 0;
 
     data.forEach(function (d) {
-        d.value = {
-            amount: d.value,
-            y0: y0,
-            y1: y0 += d.value,
-        };
+        d.y0 = y0; // Start.
+        y0 += d.value;
+        d.y1 = y0; // End.
     });
 
     return data;

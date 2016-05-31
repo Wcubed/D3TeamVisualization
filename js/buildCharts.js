@@ -16,8 +16,6 @@ d3_queue.queue()
 function createGraphs(error, materialData) {
     if (error) throw error;
 
-    console.log(materialData);
-
     // The filter and update configuration.
     var config = {
         // Data.
@@ -25,7 +23,7 @@ function createGraphs(error, materialData) {
 
         // Filters.
         year: 2012,
-        product: "coal",
+        commodity: "Carbon (carbon blacks and other forms of carbon, nes)",
 
         // Update information.
         transitionDuration: 1, // In seconds.
@@ -54,19 +52,19 @@ function createGraphs(error, materialData) {
 
 // Coerces the data types on load.
 function coerceTypes(d) {
-    d.year = +d.year;
-    d.quantity = +d.quantity;
+    d.Year = +d.Year;
+    d.Quantity = +d.Quantity;
     return d;
 }
 
 
 function nestData(data) {
     var nest = d3.nest()
-        .key(function(d) { return d.year; })
-        .key(function(d) { return d.product; })
-        .key(function(d) { return d.direction; })
-        .key(function(d) { return d.country; })
-        .rollup(function(leaves) { return d3.sum(leaves, function(d) {  return d.quantity; }); })
+        .key(function(d) { return d.Year; })
+        .key(function(d) { return d.Commodity; })
+        .key(function(d) { return d.Flow; })
+        .key(function(d) { return d.Country; })
+        .rollup(function(leaves) { return d3.sum(leaves, function(d) {  return d.Quantity; }); })
         .map(data, d3.map);
 
     return nest;
