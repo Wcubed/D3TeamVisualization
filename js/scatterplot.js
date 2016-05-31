@@ -9,7 +9,7 @@
 
 // createFlowchart.
 // container => string => The name of the container this chart should go in.
-function createFlowchart(container, config) {
+function createScatterplot(container, config) {
 
     // Setup margins and graph size.
     var size = { margin: { top: 50, right: 50, bottom: 50, left: 50 } };
