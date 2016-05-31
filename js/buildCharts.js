@@ -39,6 +39,7 @@ function createGraphs(error, materialData) {
     // ---- Build the plots ----------------------------------------------------
 
     var flowchart = createFlowchart("main", config);
+    var scatterplot = createScatterplot("main", config);
 
     // ---- Hover functions ----------------------------------------------------
 
@@ -56,6 +57,7 @@ function createGraphs(error, materialData) {
 
     function updatePlots(config) {
         flowchart.update(config);
+        scatterplot.update(config);
 
         // ---- Add the hover functions ----------------------------------------
 

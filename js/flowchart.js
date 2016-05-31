@@ -56,12 +56,7 @@ function createFlowchart(container, config) {
     }
 
     var labelText = function(d) {
-        if (d.key == config.hoveredCountry) {
-            // Display full name if hovered.
-            return d.key;
-        } else {
-            return d.key.substring(0, 3);
-        }
+        return d.key.substring(0, 3);
     }
 
 
