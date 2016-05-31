@@ -9,7 +9,7 @@
 
 // Load the data and create the graph.
 d3_queue.queue()
-    .defer(d3.csv, "data/materialData.csv", coerceTypes)
+    .defer(d3.csv, "data/metalData.csv", coerceTypes)
     .await(createGraphs);
 
 
@@ -23,12 +23,14 @@ function createGraphs(error, materialData) {
 
         // Filters.
         year: 2012,
-        commodity: "Gold compounds",
+        commodity: "Silicon, <99.99% pure",
         hoveredCountry: "",
 
         // Update information.
         transitionDuration: 1, // In seconds.
     }
+
+    console.log(config.nestedData);
 
     // Make a list of all available years, as integers.
     config.yearList = config.nestedData.keys();

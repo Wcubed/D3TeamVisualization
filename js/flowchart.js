@@ -145,16 +145,20 @@ function createFlowchart(container, config) {
 
         var datapoint = d3.selectAll(flowchart.datapointSelector);
 
-        datapoint.attr("transform", function(d) {
+        datapoint.transition()
+            .duration(config.transitionDuration)
+            .attr("transform", function(d) {
                 return "translate(" +
                 "0," +
                 yscale(d.y0) + ")";
-            })
-            .classed("hovered", function(d) {
+            });
+
+        datapoint.classed("hovered", function(d) {
                 return d.key == config.hoveredCountry;
             });
 
-        datapoint.select("rect")
+        datapoint.select("rect").transition()
+            .duration(config.transitionDuration)
             .attr("width", size.barWidth)
             .attr("height", barHeight);
 
