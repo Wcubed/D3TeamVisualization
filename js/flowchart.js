@@ -42,8 +42,14 @@ function createFlowchart(container, config) {
             .get(config.year)
             .get(config.product);
 
-        var exportData = data.get("export");
-        var importData = data.get("import");
+        var exportData = data.get("export").entries();
+        var importData = data.get("import").entries();
+
+        exportData = calcStartAndEnd(exportData);
+        importData = calcStartAndEnd(importData);
+
+        console.log(exportData);
+        console.log(importData);
 
         // ---- Datapoints -----------------------------------------------------
 
@@ -73,4 +79,20 @@ function createFlowchart(container, config) {
     // ---- Return the values --------------------------------------------------
 
     return flowchart;
+}
+
+
+// Calculates start and end values, aranging the data into bands.
+function calcStartAndEnd(data) {
+    var y0 = 0;
+
+    data.forEach(function (d) {
+        d.value = {
+            amount: d.value,
+            y0: y0,
+            y1: y0 += d.value,
+        };
+    });
+
+    return data;
 }
