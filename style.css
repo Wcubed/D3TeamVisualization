@@ -1,0 +1,14 @@
+
+body {
+    background-color: rgb(15, 15, 15);
+}
+
+/* ---- Flowchart ---- */
+
+.flowchart rect {
+    fill: rgb(1, 87, 12);
+    stroke: rgb(226, 226, 226);
+    shape-rendering: crispEdges;
+}
+
+/* ---- /Flowchart ---- */

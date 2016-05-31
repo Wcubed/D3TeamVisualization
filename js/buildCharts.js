@@ -23,7 +23,7 @@ function createGraphs(error, materialData) {
 
         // Filters.
         year: 2012,
-        commodity: "Carbon (carbon blacks and other forms of carbon, nes)",
+        commodity: "Alums",
 
         // Update information.
         transitionDuration: 1, // In seconds.

@@ -37,7 +37,9 @@ function createFlowchart(container, config) {
     var chart = d3.select(container).append("svg")
         .classed(flowchart.class, true)
         .attr("width", size.totalWidth)
-        .attr("height", size.totalHeight);
+        .attr("height", size.totalHeight)
+      .append("g") // Add the margin offset.
+        .attr("transform", "translate(" + size.margin.left + "," + size.margin.top + ")");
 
     // ---- Update function ----------------------------------------------------
 
@@ -85,15 +87,15 @@ function createFlowchart(container, config) {
         // -- Update --
 
         importDatapoint.select("rect")
-            .attr("x", 12)
+            .attr("x", 0)
             .attr("y", function(d) { return importY(d.y0); })
-            .attr("width", 10)
+            .attr("width", 50)
             .attr("height", function(d) { return importY(d.y1 - d.y0); });
 
         exportDatapoint.select("rect")
-            .attr("x", 0)
+            .attr("x", 60)
             .attr("y", function(d) { return exportY(d.y0); })
-            .attr("width", 10)
+            .attr("width", 50)
             .attr("height", function(d) { return exportY(d.y1 - d.y0); });
 
         // -- Remove --
