@@ -27,7 +27,7 @@ function createGraphs(error, materialData) {
         hoveredCountry: "",
 
         // Update information.
-        transitionDuration: 1, // In seconds.
+        transitionDuration: 1000, // In milliseconds.
     }
 
     console.log(config.nestedData);
@@ -42,17 +42,20 @@ function createGraphs(error, materialData) {
 
     var flowchartOver = function(d) {
         config.hoveredCountry = d.key;
+        config.transitionDuration = 100;
         updatePlots(config);
     }
 
     var flowchartOut = function(d) {
         config.hoveredCountry = "";
+        config.transitionDuration = 100;
         updatePlots(config);
     }
 
     // Change the year.
     var yearSliderInput = function() {
         config.year = this.value;
+        config.transitionDuration = 1000;
         updatePlots(config);
     }
 

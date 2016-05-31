@@ -14,13 +14,8 @@ body {
 /* ---- Flowchart ---- */
 
 .flowchart .datapoint rect {
-    fill: rgb(1, 87, 12);
     stroke: rgb(226, 226, 226);
     shape-rendering: crispEdges;
-}
-
-.flowchart .datapoint.hovered rect {
-    fill: rgb(0, 124, 16);
 }
 
 .flowchart text {

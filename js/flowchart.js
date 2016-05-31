@@ -45,14 +45,18 @@ function createFlowchart(container, config) {
 
     // ---- Label functions ----------------------------------------------------
 
-    var fontSize = 20;
+    var fontSize = 15;
 
     // Determines whether to display the label or not.
     var doHideLabel = function(d) {
         // Labels should be hidden when the bar isn't high enough.
         // Show it again on hover.
-        return (fontSize > barHeight(d)) &&
-            (d.key != config.hoveredCountry);
+        if ((fontSize < barHeight(d)) ||
+            (d.key == config.hoveredCountry)) {
+                return 1;
+        } else {
+            return 0;
+        }
     }
 
     var labelText = function(d) {
@@ -109,17 +113,22 @@ function createFlowchart(container, config) {
 
         // ---- Datapoints -----------------------------------------------------
 
+        // Key function.
+        var keyFn = function(d) {
+            return d.key;
+        };
+
         var importDatapoint = importContainer.selectAll("g")
-            .data(importData);
+            .data(importData, keyFn);
 
         var exportDatapoint = exportContainer.selectAll("g")
-            .data(exportData);
+            .data(exportData, keyFn);
 
         // Labels.
         var importLabel = labelContainer.selectAll("text.import")
-            .data(importData);
+            .data(importData, keyFn);
         var exportLabel = labelContainer.selectAll("text.export")
-            .data(exportData);
+            .data(exportData, keyFn);
 
         // ---- Enter ----
 
@@ -132,14 +141,20 @@ function createFlowchart(container, config) {
         // Labels.
         importLabel.enter().append("text")
             .classed("import", true)
+            .attr("y", 0)
+            .style("opacity", 0)
             .style("font-size", fontSize);
         exportLabel.enter().append("text")
             .classed("export", true)
+            .attr("y", 0)
+            .style("opacity", 0)
             .style("font-size", fontSize);
 
         // Chart boxes.
-        newImportDatapoint.append("rect");
-        newExportDatapoint.append("rect");
+        newImportDatapoint.append("rect")
+            .attr("height", 0);
+        newExportDatapoint.append("rect")
+            .attr("height", 0);
 
         // ---- Update ----
 
@@ -153,24 +168,35 @@ function createFlowchart(container, config) {
                 yscale(d.y0) + ")";
             });
 
-        datapoint.classed("hovered", function(d) {
-                return d.key == config.hoveredCountry;
-            });
-
         datapoint.select("rect").transition()
             .duration(config.transitionDuration)
             .attr("width", size.barWidth)
-            .attr("height", barHeight);
+            .attr("height", barHeight)
+            .style("fill", function(d) {
+                if (d.key == config.hoveredCountry) {
+                    // Hovered.
+                    return "rgb(0, 112, 14)";
+                } else {
+                    // Normal.
+                    return "rgb(1, 87, 12)";
+                }
+            });;
 
         // Labels.
         importLabel.attr("x", importLabelX)
-            .attr("y", labelY)
-            .classed("hidden", doHideLabel)
             .html(labelText);
+        importLabel.transition()
+            .duration(config.transitionDuration)
+            .attr("y", labelY)
+            .style("opacity", doHideLabel);
+
         exportLabel.attr("x", exportLabelX)
-            .attr("y", labelY)
-            .classed("hidden", doHideLabel)
             .html(labelText);
+        exportLabel.transition()
+            .duration(config.transitionDuration)
+            .attr("y", labelY)
+            .style("opacity", doHideLabel);
+
 
         // ---- Remove ----
 
@@ -180,9 +206,13 @@ function createFlowchart(container, config) {
             .remove();
 
         // Labels.
-        importLabel.exit()
+        importLabel.exit().transition()
+            .duration(config.transitionDuration)
+            .style("opacity", 0)
             .remove();
-        exportLabel.exit()
+        exportLabel.exit().transition()
+            .duration(config.transitionDuration)
+            .style("opacity", 0)
             .remove();
     }
 
