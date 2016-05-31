@@ -13,7 +13,7 @@ function createFlowchart(container, config) {
 
     // Setup margins and graph size.
     var size = { margin: { top: 50, right: 50, bottom: 50, left: 50 } };
-    size.totalWidth = 600;
+    size.totalWidth = 300;
     size.totalHeight = 900;
     size.width = size.totalWidth - size.margin.left - size.margin.right;
     size.height = size.totalHeight - size.margin.top - size.margin.bottom;
@@ -49,13 +49,25 @@ function createFlowchart(container, config) {
 
     // Determines whether to display the label or not.
     var doHideLabel = function(d) {
-        return fontSize > barHeight(d);
+        // Labels should be hidden when the bar isn't high enough.
+        // Show it again on hover.
+        return (fontSize > barHeight(d)) &&
+            (d.key != config.hoveredCountry);
     }
 
     var labelText = function(d) {
-        return d.key.substring(0, 3);
+        if (d.key == config.hoveredCountry) {
+            // Display full name if hovered.
+            return d.key;
+        } else {
+            return d.key.substring(0, 3);
+        }
     }
 
+
+    // Scales.
+    var yscale = d3.scale.linear()
+        .range([0, size.height]);
 
     // ---- Build the chart ----------------------------------------------------
 
@@ -66,9 +78,16 @@ function createFlowchart(container, config) {
       .append("g") // Add the margin offset.
         .attr("transform", "translate(" + size.margin.left + "," + size.margin.top + ")");
 
-    // Scales.
-    var yscale = d3.scale.linear()
-        .range([0, size.height]);
+    // Containers.
+    var importContainer = chart.append("g")
+        .attr("transform", "translate(0, 0)")
+        .classed("import", true);
+
+    var exportContainer = chart.append("g")
+        .attr("transform", "translate(" + (size.barWidth + size.barMargin) + ", 0)")
+        .classed("export", true);
+
+    var labelContainer = chart.append("g");
 
     // ---- Update function ----------------------------------------------------
 
@@ -92,17 +111,6 @@ function createFlowchart(container, config) {
         );
 
         yscale.domain([0, maxScaleSize]);
-
-        // Containers.
-        var importContainer = chart.append("g")
-            .attr("transform", "translate(0, 0)")
-            .classed("import", true);
-
-        var exportContainer = chart.append("g")
-            .attr("transform", "translate(" + (size.barWidth + size.barMargin) + ", 0)")
-            .classed("export", true);
-
-        var labelContainer = chart.append("g");
 
         // ---- Datapoints -----------------------------------------------------
 
@@ -129,12 +137,10 @@ function createFlowchart(container, config) {
         // Labels.
         importLabel.enter().append("text")
             .classed("import", true)
-            .style("font-size", fontSize)
-            .html(labelText);
+            .style("font-size", fontSize);
         exportLabel.enter().append("text")
             .classed("export", true)
-            .style("font-size", fontSize)
-            .html(labelText);
+            .style("font-size", fontSize);
 
         // Chart boxes.
         newImportDatapoint.append("rect");
@@ -145,10 +151,13 @@ function createFlowchart(container, config) {
         var datapoint = d3.selectAll(flowchart.datapointSelector);
 
         datapoint.attr("transform", function(d) {
-            return "translate(" +
-            "0," +
-            yscale(d.y0) + ")";
-        });
+                return "translate(" +
+                "0," +
+                yscale(d.y0) + ")";
+            })
+            .classed("hovered", function(d) {
+                return d.key == config.hoveredCountry;
+            });
 
         datapoint.select("rect")
             .attr("width", size.barWidth)
@@ -157,10 +166,12 @@ function createFlowchart(container, config) {
         // Labels.
         importLabel.attr("x", importLabelX)
             .attr("y", labelY)
-            .classed("hidden", doHideLabel);
+            .classed("hidden", doHideLabel)
+            .html(labelText);
         exportLabel.attr("x", exportLabelX)
             .attr("y", labelY)
-            .classed("hidden", doHideLabel);
+            .classed("hidden", doHideLabel)
+            .html(labelText);
 
         // ---- Remove ----
 

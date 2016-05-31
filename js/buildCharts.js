@@ -23,11 +23,14 @@ function createGraphs(error, materialData) {
 
         // Filters.
         year: 2012,
-        commodity: "Alums",
+        commodity: "Gold compounds",
+        hoveredCountry: "",
 
         // Update information.
         transitionDuration: 1, // In seconds.
     }
+
+    console.log(config.nestedData.get(config.year).get(config.commodity));
 
     // ---- Build the framework ------------------------------------------------
 
@@ -40,13 +43,13 @@ function createGraphs(error, materialData) {
     // ---- Hover functions ----------------------------------------------------
 
     var flowchartOver = function(d) {
-        d3.select(this)
-            .classed("hover", true);
+        config.hoveredCountry = d.key;
+        updatePlots(config);
     }
 
     var flowchartOut = function(d) {
-        d3.select(this)
-            .classed("hover", false);
+        config.hoveredCountry = "";
+        updatePlots(config);
     }
 
     // ---- Plot update function -----------------------------------------------

@@ -11,7 +11,7 @@ body {
     shape-rendering: crispEdges;
 }
 
-.flowchart .datapoint.hover rect {
+.flowchart .datapoint.hovered rect {
     fill: rgb(0, 124, 16);
 }
 
@@ -21,6 +21,7 @@ body {
     alignment-baseline: middle;
 
     font-family: sans-serif;
+    pointer-events: none;
 }
 
 /* ---- /Flowchart ---- */
