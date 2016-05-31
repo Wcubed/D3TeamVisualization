@@ -12,9 +12,9 @@
 function createFlowchart(container, config) {
 
     // Setup margins and graph size.
-    var size = { margin: { top: 50, right: 50, bottom: 50, left: 50 } };
+    var size = { margin: { top: 0, right: 50, bottom: 0, left: 50 } };
     size.totalWidth = 300;
-    size.totalHeight = 900;
+    size.totalHeight = 700;
     size.width = size.totalWidth - size.margin.left - size.margin.right;
     size.height = size.totalHeight - size.margin.top - size.margin.bottom;
 
@@ -202,9 +202,13 @@ function createFlowchart(container, config) {
 
         // ---- Remove ----
 
-        importDatapoint.exit()
+        importDatapoint.exit().transition()
+            .duration(config.transitionDuration)
+            .style("opacity", 0)
             .remove();
-        exportDatapoint.exit()
+        exportDatapoint.exit().transition()
+            .duration(config.transitionDuration)
+            .style("opacity", 0)
             .remove();
 
         // Labels.

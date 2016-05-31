@@ -1,6 +1,15 @@
 
 body {
     background-color: rgb(15, 15, 15);
+    font-family: sans-serif;
+}
+
+/* Common background and color parameters. */
+.commodity-selector,
+.details-display {
+    background-color: rgb(1, 87, 12);
+    color: rgb(226, 226, 226);
+    border: solid rgb(226, 226, 226) 1px;
 }
 
 /* ---- Filter container ---- */
@@ -15,14 +24,16 @@ body {
     height: 5rem;
     margin: 0.2rem;
     padding: 0.2rem;
+}
 
-    background-color: rgb(1, 87, 12);
-    color: rgb(226, 226, 226);
-    border: solid rgb(226, 226, 226) 1px;
+.commodity-selector.selected {
+    background-color: rgb(209, 146, 20);
+    color: rgb(15, 15, 15);
 }
 
 .commodity-selector p {
     font-size: 11px;
+    pointer-events: none;
 }
 
 /* -- /Commodity selectors -- */
@@ -33,7 +44,52 @@ body {
 
 /* ---- /Filter container ---- */
 
+/* ---- Details display ---- */
+
+.details-display {
+    width: 10rem;
+    height: 10rem;
+    float: left;
+    position: relative;
+
+    padding: 0.2rem;
+}
+
+.details-display h2 {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+
+    transform: translate(-50%, -50%);
+
+    padding: 0;
+    margin: 0;
+}
+
+.details-display p {
+    position: absolute;
+
+    padding: 0.2rem;
+    margin: 0;
+}
+
+.details-display .details-import {
+    bottom: 0;
+    left: 0;
+}
+
+.details-display .details-export {
+    bottom: 0;
+    right: 0;
+}
+
+/* ---- /Details display ---- */
+
 /* ---- Flowchart ---- */
+
+.flowchart {
+    float: left;
+}
 
 .flowchart .datapoint rect {
     stroke: rgb(226, 226, 226);
@@ -45,7 +101,6 @@ body {
     text-anchor: middle;
     alignment-baseline: middle;
 
-    font-family: sans-serif;
     pointer-events: none;
 }
 

@@ -70,6 +70,16 @@ function createGraphs(error, materialData) {
         updatePlots(config);
     }
 
+    // Change the commodity.
+    var commodityInput = function(d) {
+        // Is there data on this commodity in this year?
+        if (config.nestedData.get(config.year).has(d)) {
+            config.transitionDuration = 1000;
+            config.commodity = d;
+            updatePlots(config);
+        }
+    }
+
     // ---- Build the main container -------------------------------------------
 
     var mainContainer = d3.select("body").append("main");
@@ -83,11 +93,13 @@ function createGraphs(error, materialData) {
     var commoditySelector = filterContainer.selectAll("div.commodity-selector")
         .data(Object.keys(config.commodityList))
       .enter().append("div")
-        .classed("commodity-selector", true);
+        .classed("commodity-selector", true)
+        .on("click", commodityInput);
 
     commoditySelector.append("p")
         .html(function(d) { return d; });
 
+    // Year selector.
     var yearSlider = filterContainer.append("input")
         .classed("year-slider", true)
         .attr("type", "range")
@@ -96,20 +108,49 @@ function createGraphs(error, materialData) {
         .attr("step", 1)
         .on("input", yearSliderInput);
 
+    // Country details display.
+    var detailsDisplay = mainContainer.append("div")
+        .classed("details-display", true);
+
+    var detailsCountryName = detailsDisplay.append("h2");
+    var detailsImport = detailsDisplay.append("p")
+        .classed("details-import", true);
+    var detailsExport = detailsDisplay.append("p")
+        .classed("details-export", true);
+    var detailsYear = detailsDisplay.append("p")
+        .classed("details-year", true);
+
     // ---- Build the plots ----------------------------------------------------
 
     var flowchart = createFlowchart("main", config);
-    var scatterplot = createScatterplot("main", config);
+    //var scatterplot = createScatterplot("main", config);
 
     // ---- Plot update function -----------------------------------------------
 
     function updatePlots(config) {
         flowchart.update(config);
-        scatterplot.update(config);
+        //scatterplot.update(config);
 
         // --- Update filters --------------------------------------------------
 
         yearSlider.attr("value", config.year);
+        commoditySelector.classed("selected", function(d) {
+            return config.commodity == d;
+        });
+
+        // Details display.
+        detailsCountryName.html(config.hoveredCountry);
+        detailsImport.html(
+            config.nestedData.get(config.year)
+            .get(config.commodity)
+            .get("Import")
+            .get(config.hoveredCountry));
+        detailsExport.html(
+            config.nestedData.get(config.year)
+            .get(config.commodity)
+            .get("Export")
+            .get(config.hoveredCountry));
+        detailsYear.html(config.year);
 
         // ---- Add the hover functions ----------------------------------------
 
