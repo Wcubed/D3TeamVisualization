@@ -52,21 +52,17 @@ function createScatterplot(container, config) {
             .get(config.year)
             .get(config.commodity);
 
-        var importData = data.get("Import").entries();
         var exportData = data.get("Export").entries();
+        var importData = data.get("Import").entries();
 
-        // Calculate the stacking values.
-        importData = calcStartAndEnd(importData);
-        exportData = calcStartAndEnd(exportData);
+        var datas = data.get("Country").entries();
 
         // Scale domains.
-        var maxScaleSize = Math.max(
-            importData[importData.length-1].y1,
-            exportData[exportData.length-1].y1
-        );
+        var maxScalex = Math.max(exportData);
+        var maxScaleY = Math.max(importData);
 
-        importY.domain([0, maxScaleSize]);
-        exportX.domain([0, maxScaleSize]);
+        exportX.domain([0, maxScalex]);
+        importY.domain([0, maxScaleY]);
 
         // Setup X and Y Axis
         var yAxis = d3.svg.axis().scale(importY).orient("left").ticks(10);
@@ -97,9 +93,10 @@ function createScatterplot(container, config) {
             .attr("dy", ".71em")
             .style("text-anchor", "end")
             .text("Import");
+
         // ---- Datapoints -----------------------------------------------------
         var datapoints = chart.selectAll("g")
-            .data(importData);
+            .data(datas);
 
         // -- Enter --
         var newDatapoints = datapoints.enter().append("g")
@@ -112,8 +109,8 @@ function createScatterplot(container, config) {
           .append("circle")
             .attr("class", "dot")
             .attr("r", 5)
-            .attr("cx", function(d) { return exportX(d.y0); })
-            .attr("cy", function(d) { return importY(d.y1); })
+            .attr("cx", function(d) { return exportX(d["Import"]); })
+            .attr("cy", function(d) { return importY(d["Export"]); })
             .style("fill", "red");
 
         // -- Remove --
@@ -126,19 +123,4 @@ function createScatterplot(container, config) {
     // ---- Return the values --------------------------------------------------
 
     return scatterplot;
-}
-
-
-// Calculates start and end values,
-// stacking the data.
-function calcStartAndEnd(data) {
-    var y0 = 0;
-
-    data.forEach(function (d) {
-        d.y0 = y0; // Start.
-        y0 += d.value;
-        d.y1 = y0; // End.
-    });
-
-    return data;
 }
