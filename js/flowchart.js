@@ -77,14 +77,7 @@ function createFlowchart(container, config) {
       .append("g") // Add the margin offset.
         .attr("transform", "translate(" + size.margin.left + "," + size.margin.top + ")");
 
-    // Containers.
-    var importContainer = chart.append("g")
-        .attr("transform", "translate(0, 0)")
-        .classed("import", true);
-
-    var exportContainer = chart.append("g")
-        .attr("transform", "translate(" + (size.barWidth + size.barMargin) + ", 0)")
-        .classed("export", true);
+    var barsContainer = chart.append("g");
 
     var labelContainer = chart.append("g");
 
@@ -96,18 +89,15 @@ function createFlowchart(container, config) {
             .get(config.year)
             .get(config.commodity);
 
-        var importData = data.get("Import").entries();
-        var exportData = data.get("Export").entries();
+        console.log(data);
 
         // Calculate the stacking values.
-        importData = calcStartAndEnd(importData);
-        exportData = calcStartAndEnd(exportData);
+        data = calcStartAndEnd(data);
+
+        console.log(data);
 
         // Scale domains.
-        var maxScaleSize = Math.max(
-            importData[importData.length-1].y1,
-            exportData[exportData.length-1].y1
-        );
+        var maxScaleSize;
 
         yscale.domain([0, maxScaleSize]);
 
@@ -118,51 +108,38 @@ function createFlowchart(container, config) {
             return d.key;
         };
 
-        var importDatapoint = importContainer.selectAll("g")
-            .data(importData, keyFn);
-
-        var exportDatapoint = exportContainer.selectAll("g")
-            .data(exportData, keyFn);
+        var datapoint = barsContainer.selectAll("g")
+            .data(data, keyFn);
 
         // Labels.
-        var importLabel = labelContainer.selectAll("text.import")
-            .data(importData, keyFn);
-        var exportLabel = labelContainer.selectAll("text.export")
-            .data(exportData, keyFn);
+        var label = labelContainer.selectAll("text")
+            .data(data, keyFn);
 
         // ---- Enter ----
 
-        var newImportDatapoint = importDatapoint.enter().append("g")
-            .classed(flowchart.datapointClass, true);
-
-        var newExportDatapoint = exportDatapoint.enter().append("g")
+        var newDatapoint = datapoint.enter().append("g")
             .classed(flowchart.datapointClass, true);
 
         // Labels.
-        importLabel.enter().append("text")
+        label.enter().append("text")
             .classed("import", true)
-            .attr("y", 0)
-            .style("opacity", 0)
-            .style("font-size", fontSize);
-        exportLabel.enter().append("text")
-            .classed("export", true)
             .attr("y", 0)
             .style("opacity", 0)
             .style("font-size", fontSize);
 
         // Chart boxes.
-        newImportDatapoint.append("rect")
+        newDatapoint.append("rect")
             .attr("height", 0)
+            .classed("import", true)
             .style("fill", "rgb(1, 87, 12)");
-        newExportDatapoint.append("rect")
+        newDatapoint.append("rect")
             .attr("height", 0)
+            .classed("export", true)
             .style("fill", "rgb(1, 87, 12)");
 
         // ---- Update ----
 
-        var datapoint = d3.selectAll(flowchart.datapointSelector);
-
-        datapoint.transition()
+        datapoint.selectAll("rect").transition()
             .duration(config.transitionDuration)
             .attr("transform", function(d) {
                 return "translate(" +
@@ -170,7 +147,7 @@ function createFlowchart(container, config) {
                 yscale(d.y0) + ")";
             });
 
-        datapoint.select("rect").transition()
+        datapoint.selectAll("rect").transition()
             .duration(config.transitionDuration)
             .attr("width", size.barWidth)
             .attr("height", barHeight)
@@ -185,16 +162,9 @@ function createFlowchart(container, config) {
             });;
 
         // Labels.
-        importLabel.attr("x", importLabelX)
+        label.attr("x", importLabelX)
             .html(labelText);
-        importLabel.transition()
-            .duration(config.transitionDuration)
-            .attr("y", labelY)
-            .style("opacity", doHideLabel);
-
-        exportLabel.attr("x", exportLabelX)
-            .html(labelText);
-        exportLabel.transition()
+        label.transition()
             .duration(config.transitionDuration)
             .attr("y", labelY)
             .style("opacity", doHideLabel);
@@ -202,21 +172,13 @@ function createFlowchart(container, config) {
 
         // ---- Remove ----
 
-        importDatapoint.exit().transition()
-            .duration(config.transitionDuration)
-            .style("opacity", 0)
-            .remove();
-        exportDatapoint.exit().transition()
+        datapoint.exit().transition()
             .duration(config.transitionDuration)
             .style("opacity", 0)
             .remove();
 
         // Labels.
-        importLabel.exit().transition()
-            .duration(config.transitionDuration)
-            .style("opacity", 0)
-            .remove();
-        exportLabel.exit().transition()
+        label.exit().transition()
             .duration(config.transitionDuration)
             .style("opacity", 0)
             .remove();
@@ -234,9 +196,17 @@ function calcStartAndEnd(data) {
     var y0 = 0;
 
     data.forEach(function (d) {
-        d.y0 = y0; // Start.
-        y0 += d.value;
-        d.y1 = y0; // End.
+        var imp = {};
+
+        imp.value = d["Import"];
+
+        imp.y0 = y0; // Start.
+        y0 += imp.value;
+        imp.y1 = y0; // End.
+
+        console.log(imp);
+
+        d = imp;
     });
 
     return data;

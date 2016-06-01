@@ -47,8 +47,6 @@ function createGraphs(error, materialData) {
         });
     });
 
-    console.log(config.commodityList);
-
     // ---- Hover/filter functions ---------------------------------------------
 
     var flowchartOver = function(d) {
@@ -123,13 +121,13 @@ function createGraphs(error, materialData) {
     // ---- Build the plots ----------------------------------------------------
 
     var flowchart = createFlowchart("main", config);
-    var scatterplot = createScatterplot("main", config);
+    //var scatterplot = createScatterplot("main", config);
 
     // ---- Plot update function -----------------------------------------------
 
     function updatePlots(config) {
         flowchart.update(config);
-        scatterplot.update(config);
+        //scatterplot.update(config);
 
         // --- Update filters --------------------------------------------------
 
@@ -138,18 +136,16 @@ function createGraphs(error, materialData) {
             return config.commodity == d;
         });
 
+        var hoveredData = config.nestedData.get(config.year)
+            .get(config.commodity)
+            .get(config.hoveredCountry);
+
         // Details display.
-        detailsCountryName.html(config.hoveredCountry);
-        detailsImport.html(
-            config.nestedData.get(config.year)
-            .get(config.commodity)
-            .get("Import")
-            .get(config.hoveredCountry));
-        detailsExport.html(
-            config.nestedData.get(config.year)
-            .get(config.commodity)
-            .get("Export")
-            .get(config.hoveredCountry));
+        if (hoveredData) {
+            detailsCountryName.html(config.hoveredCountry);
+            detailsImport.html(hoveredData.get("Import"));
+            detailsExport.html(hoveredData.get("Export"));
+        }
         detailsYear.html(config.year);
 
         // ---- Add the hover functions ----------------------------------------
