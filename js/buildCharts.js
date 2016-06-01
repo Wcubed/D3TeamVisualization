@@ -178,8 +178,8 @@ function nestData(data) {
     var nest = d3.nest()
         .key(function(d) { return d.Year; })
         .key(function(d) { return d.Commodity; })
-        .key(function(d) { return d.Flow; })
         .key(function(d) { return d.Country; })
+        .key(function(d) { return d.Flow; })
         .rollup(function(leaves) { return d3.sum(leaves, function(d) {  return d.Quantity; }); })
         .map(data, d3.map);
 
