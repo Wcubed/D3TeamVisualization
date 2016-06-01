@@ -123,13 +123,13 @@ function createGraphs(error, materialData) {
     // ---- Build the plots ----------------------------------------------------
 
     var flowchart = createFlowchart("main", config);
-    //var scatterplot = createScatterplot("main", config);
+    var scatterplot = createScatterplot("main", config);
 
     // ---- Plot update function -----------------------------------------------
 
     function updatePlots(config) {
         flowchart.update(config);
-        //scatterplot.update(config);
+        scatterplot.update(config);
 
         // --- Update filters --------------------------------------------------
 

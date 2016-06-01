@@ -97,7 +97,6 @@ function createScatterplot(container, config) {
             .attr("dy", ".71em")
             .style("text-anchor", "end")
             .text("Import");
-
         // ---- Datapoints -----------------------------------------------------
         var datapoints = chart.selectAll("g")
             .data(importData);
