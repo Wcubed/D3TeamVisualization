@@ -9,7 +9,8 @@
 
 // createFlowchart.
 // container => string => The name of the container this chart should go in.
-function createFlowchart(container, config) {
+// FlowDirection can be either "Import" or "Export".
+function Flowchart(container, config, flowDirection) {
 
     // Setup margins and graph size.
     var size = { margin: { top: 0, right: 50, bottom: 0, left: 50 } };
@@ -18,28 +19,20 @@ function createFlowchart(container, config) {
     size.width = size.totalWidth - size.margin.left - size.margin.right;
     size.height = size.totalHeight - size.margin.top - size.margin.bottom;
 
-    // Setup the import / export bar sizes.
-    size.barMargin = size.width * 0.1;
-    size.barWidth = (size.width - size.barMargin) / 2;
+    this.class = "flowchart" + flowDirection;
+    this.datapointClass = "datapoint";
+    this.flowDirection = flowDirection;
 
-    // The return value.
-    var flowchart = {
-        class: "flowchart",
-        datapointClass: "datapoint",
-    };
-
-    flowchart.datapointSelector =
-        "." + flowchart.class + " ." + flowchart.datapointClass;
+    this.datapointSelector = "." + this.class + " ." + this.datapointClass;
 
     // ---- Location functions -------------------------------------------------
 
-    var importX = function(d) { return 0; };
-        exportX = function(d) { return size.barMargin + size.barWidth; };
+    var barX = function(d) { return 0; };
         barY = function(d) { return yscale(d.y0); };
+        barWidth = function(d) { return size.width; };
         barHeight = function(d) { return yscale(d.y1 - d.y0); };
 
-        importLabelX = function(d) { return importX(d) + size.barWidth / 2; };
-        exportLabelX = function(d) { return exportX(d) + size.barWidth / 2; };
+        labelX = function(d) { return barX(d) + size.width / 2; };
         labelY = function(d) { return barY(d) + barHeight(d)/2; };
 
 
@@ -71,7 +64,7 @@ function createFlowchart(container, config) {
     // ---- Build the chart ----------------------------------------------------
 
     var chart = d3.select(container).append("svg")
-        .classed(flowchart.class, true)
+        .classed(this.class, true)
         .attr("width", size.totalWidth)
         .attr("height", size.totalHeight)
       .append("g") // Add the margin offset.
@@ -83,25 +76,24 @@ function createFlowchart(container, config) {
 
     // ---- Update function ----------------------------------------------------
 
-    flowchart.update = function(config) {
+    this.update = function(config) {
         // Get the currenly selected data.
-        var data = config.nestedData
+        this.rawData = config.nestedData
             .get(config.year)
             .get(config.commodity);
 
-        console.log(data);
+        // Reset the data.
+        this.data = {};
 
         // Calculate the stacking values.
-        data = calcStartAndEnd(data);
+        calcStartAndEnd(this);
 
-        console.log(data);
-
-        // Scale domains.
-        var maxScaleSize;
-
-        yscale.domain([0, maxScaleSize]);
+        // Scale the domain.
+        yscale.domain([0, this.maxScaleSize]);
 
         // ---- Datapoints -----------------------------------------------------
+
+        console.log(this.data);
 
         // Key function.
         var keyFn = function(d) {
@@ -109,20 +101,19 @@ function createFlowchart(container, config) {
         };
 
         var datapoint = barsContainer.selectAll("g")
-            .data(data, keyFn);
+            .data(this.data, keyFn);
 
         // Labels.
         var label = labelContainer.selectAll("text")
-            .data(data, keyFn);
+            .data(this.data, keyFn);
 
         // ---- Enter ----
 
         var newDatapoint = datapoint.enter().append("g")
-            .classed(flowchart.datapointClass, true);
+            .classed(this.datapointClass, true);
 
         // Labels.
         label.enter().append("text")
-            .classed("import", true)
             .attr("y", 0)
             .style("opacity", 0)
             .style("font-size", fontSize);
@@ -130,11 +121,6 @@ function createFlowchart(container, config) {
         // Chart boxes.
         newDatapoint.append("rect")
             .attr("height", 0)
-            .classed("import", true)
-            .style("fill", "rgb(1, 87, 12)");
-        newDatapoint.append("rect")
-            .attr("height", 0)
-            .classed("export", true)
             .style("fill", "rgb(1, 87, 12)");
 
         // ---- Update ----
@@ -149,7 +135,7 @@ function createFlowchart(container, config) {
 
         datapoint.selectAll("rect").transition()
             .duration(config.transitionDuration)
-            .attr("width", size.barWidth)
+            .attr("width", barWidth)
             .attr("height", barHeight)
             .style("fill", function(d) {
                 if (d.key == config.hoveredCountry) {
@@ -162,7 +148,7 @@ function createFlowchart(container, config) {
             });;
 
         // Labels.
-        label.attr("x", importLabelX)
+        label.attr("x", labelX)
             .html(labelText);
         label.transition()
             .duration(config.transitionDuration)
@@ -186,28 +172,29 @@ function createFlowchart(container, config) {
 
     // ---- Return the values --------------------------------------------------
 
-    return flowchart;
+    return this;
 }
 
 
 // Calculates start and end values,
 // stacking the data.
-function calcStartAndEnd(data) {
+function calcStartAndEnd(chart) {
     var y0 = 0;
 
-    data.forEach(function (d) {
-        var imp = {};
+    chart.rawData.forEach(function (key, value) {
+        var d = {};
 
-        imp.value = d["Import"];
+        d.value = value.get(chart.flowDirection);
 
-        imp.y0 = y0; // Start.
-        y0 += imp.value;
-        imp.y1 = y0; // End.
+        // Check for undefined.
+        if (d.value) {
+            d.y0 = y0; // Start.
+            y0 += d.value;
+            d.y1 = y0; // End.
 
-        console.log(imp);
-
-        d = imp;
+            chart.data[key] = d;
+        }
     });
 
-    return data;
+    chart.maxScaleSize = y0;
 }

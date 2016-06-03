@@ -68,7 +68,7 @@ function createGraphs(error, materialData) {
         updatePlots(config);
     }
 
-    // Change the commodity.
+    // Changes the selected commodity.
     var commodityInput = function(d) {
         // Is there data on this commodity in this year?
         if (config.nestedData.get(config.year).has(d)) {
@@ -120,14 +120,19 @@ function createGraphs(error, materialData) {
 
     // ---- Build the plots ----------------------------------------------------
 
-    var flowchart = createFlowchart("main", config);
+    var flowchartImport = new Flowchart("main", config, "Import");
+    var flowchartExport = new Flowchart("main", config, "Export");
     //var scatterplot = createScatterplot("main", config);
 
     // ---- Plot update function -----------------------------------------------
 
     function updatePlots(config) {
-        flowchart.update(config);
+        flowchartImport.update(config);
+        flowchartExport.update(config);
         //scatterplot.update(config);
+
+        console.log(flowchartImport);
+        console.log(flowchartExport);
 
         // --- Update filters --------------------------------------------------
 
@@ -150,7 +155,11 @@ function createGraphs(error, materialData) {
 
         // ---- Add the hover functions ----------------------------------------
 
-        d3.selectAll(flowchart.datapointSelector)
+        d3.selectAll(flowchartImport.datapointSelector)
+            .on('mouseover', flowchartOver)
+            .on('mouseout', flowchartOut);
+
+        d3.selectAll(flowchartExport.datapointSelector)
             .on('mouseover', flowchartOver)
             .on('mouseout', flowchartOut);
     }
