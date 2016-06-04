@@ -108,8 +108,12 @@ body {
 
 /* ---- Streamchart ---- */
 
-.streamchart rect {
+.streamchart .bar {
     shape-rendering: crispEdges;
+}
+
+.streamchart .label-name {
+    fill: white;
 }
 
 /* ---- Streamchart ---- */

@@ -45,8 +45,10 @@ function Streamchart(container, config, flowDirection) {
       .append("g") // Add the margin offset.
         .attr("transform", "translate(" + this.size.margin.left + "," + this.size.margin.top + ")");
 
-    // Add the flow container.
+    // Add the containers.
     this.flowContainer = this.chart.append("g");
+    this.labelContainer = this.chart.append("g")
+        .attr("transform", "translate(" + this.size.barWidth + ",0)");
 }
 
 // -----------------------------------------------------------------------------
@@ -60,42 +62,86 @@ Streamchart.prototype.update = function(config) {
     // Set scale domain.
     this.yscale.domain([0, this.maxDataValue]);
 
+    //console.log("---- Updating" + this.flowDirection + " ----");
+    //console.log(this.maxDataValue);
+    //console.log(this.yscale(this.maxDataValue));
+    //console.log(this.data);
+
     // ---- Datapoint location functions ---------------------------------------
 
-    var barY = function(scale) {
+    var barPos = function(c) {
         return function(d) {
-            return "translate(0," + scale(d.y0) + ")";
+            return "translate(0," + c.yscale(d.y0) + ")";
         }
     };
-    var barHeight = function(scale) {
+    var barHeight = function(c) {
         return function(d) {
-            return scale(d.y1 - d.y0);
+            return c.yscale(d.y1 - d.y0);
+        }
+    };
+
+    var labelPos = function(c) {
+        return function(d) {
+            return "translate(0," + c.yscale(d.y0) + ")";
         }
     };
 
     // ---- Datapoints ---------------------------------------------------------
 
+    // Key function.
+    var keyFn = function(d) {
+        return d.key;
+    };
+
     var datapoint = this.flowContainer.selectAll("g")
-        .data(this.data);
+        .data(this.data, keyFn);
+
+    var label = this.labelContainer.selectAll("g")
+        .data(this.data, keyFn);
 
     // ---- Enter ----
 
-    var newDatapoint = datapoint.enter().append("g");
+    var newDatapoint = datapoint.enter().append("g")
+        .style("opacity", 1);
 
     newDatapoint.append("rect")
+        .classed("bar", true)
         .style("fill", "rgb(1, 26, 50)")
         .style("stroke", "rgb(0, 62, 121)");
+
+    var newLabel = label.enter().append("g")
+        .style("opacity", 1);
+
+    newLabel.append("text")
+        .classed("label-name", true)
+        .html(function(d) { return d.key; });
 
     // ---- Update ----
 
     datapoint.transition()
         .duration(config.transitionDuration)
-        .attr("transform", barY(this.yscale));
+        .attr("transform", barPos(this));
 
-    datapoint.selectAll("rect").transition()
+    datapoint.select(".bar").transition()
         .duration(config.transitionDuration)
-        .attr("height", barHeight(this.yscale))
+        .attr("height", barHeight(this))
         .attr("width", this.size.barWidth);
+
+    label.transition()
+        .duration(config.transitionDuration)
+        .attr("transform", labelPos(this));
+
+    // ---- Remove ----
+
+    datapoint.exit().transition()
+        .duration(config.transitionDuration)
+        .style("opacity", 0)
+        .remove();
+
+    label.exit().transition()
+        .duration(config.transitionDuration)
+        .style("opacity", 0)
+        .remove();
 }
 
 // -----------------------------------------------------------------------------
