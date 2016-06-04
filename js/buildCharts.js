@@ -147,8 +147,8 @@ function createGraphs(error, materialData) {
         // Details display.
         if (hoveredData) {
             detailsCountryName.html(config.hoveredCountry);
-            detailsImport.html(hoveredData.get("Import"));
-            detailsExport.html(hoveredData.get("Export"));
+            detailsImport.html(hoveredData.get("Import") + " kg");
+            detailsExport.html(hoveredData.get("Export") + " kg");
         }
         detailsYear.html(config.year);
 

@@ -112,9 +112,17 @@ body {
     shape-rendering: crispEdges;
 }
 
-.streamchart .label-name {
+.streamchart .label {
     fill: white;
+}
+
+.streamchart .label-name {
     alignment-baseline: middle;
+}
+
+.streamchart .label-percentage {
+    alignment-baseline: middle;
+    text-anchor: end;
 }
 
 .streamchart .label-separator {

@@ -18,11 +18,11 @@ function Streamchart(container, config, flowDirection) {
     this.size = {margin: {
         top: 10,
         bottom: 10,
-        left: 10,
+        left: 90,
         right: 10,
         label: 10, // Margin between bars and labels.
     }};
-    this.size.totalWidth = 200;
+    this.size.totalWidth = 300;
     this.size.totalHeight = 800;
     this.size.width = this.size.totalWidth - this.size.margin.left - this.size.margin.right;
     this.size.height = this.size.totalHeight - this.size.margin.top - this.size.margin.bottom;
@@ -49,8 +49,7 @@ function Streamchart(container, config, flowDirection) {
 
     // Add the containers.
     this.flowContainer = this.chart.append("g");
-    this.labelContainer = this.chart.append("g")
-        .attr("transform", "translate(" + (this.size.barWidth + this.size.margin.label) + ",0)");
+    this.labelContainer = this.chart.append("g");
 }
 
 // -----------------------------------------------------------------------------
@@ -116,19 +115,36 @@ Streamchart.prototype.update = function(config) {
     // ---- Enter ----
 
     var newDatapoint = datapoint.enter().append("g")
+        .attr("transform", barPos(this))
         .style("opacity", 1);
 
     newDatapoint.append("rect")
         .classed("bar", true)
+        .attr("height", 0)
         .style("fill", "rgb(0, 16, 31)")
         .style("stroke", "rgb(0, 97, 190)");
 
     var newLabel = label.enter().append("g")
+        .attr("transform", barPos(this))
         .style("opacity", labelOpacity(this));
 
     newLabel.append("text")
+        .classed("label", true)
         .classed("label-name", true)
-        .html(function(d) { return d.key; });
+        .attr("x", this.size.barWidth + this.size.margin.label)
+        .html(function(d) { return d.key; })
+    newLabel.append("text")
+        .classed("label", true)
+        .classed("label-percentage", true)
+        .attr("x", -this.size.margin.label)
+        .html(function(d) { return d.value; });
+
+    newLabel.append("line")
+        .classed("label-separator", true)
+        .attr("x1", this.size.barWidth + 2)
+        .attr("y1", 0)
+        .attr("x2", this.size.barWidth + this.size.margin.label - 2)
+        .attr("y2", 0);
     newLabel.append("line")
         .classed("label-separator", true)
         .attr("x1", -2)
@@ -157,8 +173,12 @@ Streamchart.prototype.update = function(config) {
 
     label.transition()
         .duration(config.transitionDuration)
-        .style("opacity", labelOpacity(this))
-        .attr("transform", labelPos(this));
+        .attr("transform", labelPos(this))
+        .style("opacity", labelOpacity(this));
+
+    label.select(".label-percentage")
+        .html(function(d) { return Math.round(d.percentage * 10) / 10 + "%"; });
+
 
     // ---- Remove ----
 
@@ -199,6 +219,11 @@ Streamchart.prototype.wrangleData = function(config) {
 
             data.push(d); // Add the point to the dataset.
         }
+    });
+
+    // Calculate the percentages.
+    data.forEach(function(d) {
+        d.percentage = (d.value / y0) * 100;
     });
 
     this.data = data;
