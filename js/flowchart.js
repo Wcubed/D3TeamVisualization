@@ -13,7 +13,7 @@
 function Flowchart(container, config, flowDirection) {
 
     // Setup margins and graph size.
-    var size = { margin: { top: 0, right: 50, bottom: 0, left: 50 } };
+    var size = { margin: { top: 0, right: 50, bottom: 20, left: 50 } };
     size.totalWidth = 300;
     size.totalHeight = 700;
     size.width = size.totalWidth - size.margin.left - size.margin.right;
@@ -24,6 +24,8 @@ function Flowchart(container, config, flowDirection) {
     this.flowDirection = flowDirection;
 
     this.datapointSelector = "." + this.class + " ." + this.datapointClass;
+
+    this.fontSize = 15;
 
     // ---- Location functions -------------------------------------------------
 
@@ -36,43 +38,27 @@ function Flowchart(container, config, flowDirection) {
         labelY = function(d) { return barY(d) + barHeight(d)/2; };
 
 
-    // ---- Label functions ----------------------------------------------------
-
-    var fontSize = 15;
-
-    // Determines whether to display the label or not.
-    var doHideLabel = function(d) {
-        // Labels should be hidden when the bar isn't high enough.
-        // Show it again on hover.
-        if ((fontSize < barHeight(d)) ||
-            (d.key == config.hoveredCountry)) {
-                return 1;
-        } else {
-            return 0;
-        }
-    }
-
-    var labelText = function(d) {
-        return d.key.substring(0, 3);
-    }
-
-
     // Scales.
     var yscale = d3.scale.linear()
         .range([0, size.height]);
 
     // ---- Build the chart ----------------------------------------------------
 
-    var chart = d3.select(container).append("svg")
+    this.chart = d3.select(container).append("svg")
         .classed(this.class, true)
+        .classed("flowchart", true)
         .attr("width", size.totalWidth)
         .attr("height", size.totalHeight)
       .append("g") // Add the margin offset.
         .attr("transform", "translate(" + size.margin.left + "," + size.margin.top + ")");
 
-    var barsContainer = chart.append("g");
+    // Create the containers.
 
-    var labelContainer = chart.append("g");
+    this.barContainer = this.chart.append("g")
+        .classed("bar-container", true);
+
+    this.labelContainer = this.chart.append("g")
+        .classed("label-container", true);
 
     // ---- Update function ----------------------------------------------------
 
@@ -83,7 +69,7 @@ function Flowchart(container, config, flowDirection) {
             .get(config.commodity);
 
         // Reset the data.
-        this.data = {};
+        this.data = [];
 
         // Calculate the stacking values.
         calcStartAndEnd(this);
@@ -93,18 +79,16 @@ function Flowchart(container, config, flowDirection) {
 
         // ---- Datapoints -----------------------------------------------------
 
-        console.log(this.data);
-
         // Key function.
         var keyFn = function(d) {
             return d.key;
         };
 
-        var datapoint = barsContainer.selectAll("g")
+        var datapoint = this.barContainer.selectAll("g")
             .data(this.data, keyFn);
 
         // Labels.
-        var label = labelContainer.selectAll("text")
+        var label = this.labelContainer.selectAll("text")
             .data(this.data, keyFn);
 
         // ---- Enter ----
@@ -116,7 +100,7 @@ function Flowchart(container, config, flowDirection) {
         label.enter().append("text")
             .attr("y", 0)
             .style("opacity", 0)
-            .style("font-size", fontSize);
+            .style("font-size", this.fontSize);
 
         // Chart boxes.
         newDatapoint.append("rect")
@@ -125,7 +109,7 @@ function Flowchart(container, config, flowDirection) {
 
         // ---- Update ----
 
-        datapoint.selectAll("rect").transition()
+        datapoint.transition()
             .duration(config.transitionDuration)
             .attr("transform", function(d) {
                 return "translate(" +
@@ -137,6 +121,7 @@ function Flowchart(container, config, flowDirection) {
             .duration(config.transitionDuration)
             .attr("width", barWidth)
             .attr("height", barHeight)
+            .style("opacity", 1)
             .style("fill", function(d) {
                 if (d.key == config.hoveredCountry) {
                     // Hovered.
@@ -145,7 +130,7 @@ function Flowchart(container, config, flowDirection) {
                     // Normal.
                     return "rgb(1, 87, 12)";
                 }
-            });;
+            });
 
         // Labels.
         label.attr("x", labelX)
@@ -153,7 +138,7 @@ function Flowchart(container, config, flowDirection) {
         label.transition()
             .duration(config.transitionDuration)
             .attr("y", labelY)
-            .style("opacity", doHideLabel);
+            .style("opacity", function(d) { doHideLabel(d, this.fontSize, barHeight(d), config); });
 
 
         // ---- Remove ----
@@ -184,6 +169,7 @@ function calcStartAndEnd(chart) {
     chart.rawData.forEach(function (key, value) {
         var d = {};
 
+        d.key = key;
         d.value = value.get(chart.flowDirection);
 
         // Check for undefined.
@@ -192,9 +178,28 @@ function calcStartAndEnd(chart) {
             y0 += d.value;
             d.y1 = y0; // End.
 
-            chart.data[key] = d;
+            chart.data.push(d);
         }
     });
 
     chart.maxScaleSize = y0;
+}
+
+// ---- Label functions ----------------------------------------------------
+
+// Determines whether to display the label or not.
+function doHideLabel(d, threshold, barHeight, config) {
+    // Labels should be hidden when the bar isn't high enough.
+    // Show it again on hover.
+    if ((threshold < barHeight) ||
+        (d.key == config.hoveredCountry)) {
+            return 1;
+    } else {
+        return 0;
+    }
+}
+
+// Shortens labels.
+function labelText(d) {
+    return d.key.substring(0, 3);
 }

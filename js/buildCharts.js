@@ -131,9 +131,6 @@ function createGraphs(error, materialData) {
         flowchartExport.update(config);
         //scatterplot.update(config);
 
-        console.log(flowchartImport);
-        console.log(flowchartExport);
-
         // --- Update filters --------------------------------------------------
 
         yearSlider.attr("value", config.year);
