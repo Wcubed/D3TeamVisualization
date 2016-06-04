@@ -16,6 +16,8 @@ d3_queue.queue()
 function createGraphs(error, materialData) {
     if (error) throw error;
 
+    // ---- Initialize configuration -------------------------------------------
+
     // The filter and update configuration.
     var config = {
         // Data.
@@ -120,16 +122,22 @@ function createGraphs(error, materialData) {
 
     // ---- Build the plots ----------------------------------------------------
 
-    var flowchartImport = new Flowchart("main", config, "Import");
-    var flowchartExport = new Flowchart("main", config, "Export");
+    //var flowchartImport = new Flowchart("main", config, "Import");
+    //var flowchartExport = new Flowchart("main", config, "Export");
+
+    var streamchartImport = new Streamchart("main", config, "Import");
+    var streamchartExport = new Streamchart("main", config, "Export");
     //var scatterplot = createScatterplot("main", config);
 
     // ---- Plot update function -----------------------------------------------
 
     function updatePlots(config) {
-        flowchartImport.update(config);
-        flowchartExport.update(config);
+        //flowchartImport.update(config);
+        //flowchartExport.update(config);
         //scatterplot.update(config);
+
+        streamchartImport.update(config);
+        streamchartExport.update(config);
 
         // --- Update filters --------------------------------------------------
 
@@ -152,13 +160,13 @@ function createGraphs(error, materialData) {
 
         // ---- Add the hover functions ----------------------------------------
 
-        d3.selectAll(flowchartImport.datapointSelector)
+        /*d3.selectAll(flowchartImport.datapointSelector)
             .on('mouseover', flowchartOver)
-            .on('mouseout', flowchartOut);
+            .on('mouseout', flowchartOut);*/
 
-        d3.selectAll(flowchartExport.datapointSelector)
+        /*d3.selectAll(flowchartExport.datapointSelector)
             .on('mouseover', flowchartOver)
-            .on('mouseout', flowchartOut);
+            .on('mouseout', flowchartOut);*/
     }
 
     // Run the first update.
