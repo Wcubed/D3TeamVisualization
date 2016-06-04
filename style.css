@@ -114,6 +114,12 @@ body {
 
 .streamchart .label-name {
     fill: white;
+    alignment-baseline: middle;
+}
+
+.streamchart .label-separator {
+    stroke: white;
+    shape-rendering: crispEdges;
 }
 
 /* ---- Streamchart ---- */

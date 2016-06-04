@@ -57,12 +57,6 @@ function createGraphs(error, materialData) {
         updatePlots(config);
     }
 
-    var flowchartOut = function(d) {
-        config.hoveredCountry = "";
-        config.transitionDuration = 100;
-        updatePlots(config);
-    }
-
     // Change the year.
     var yearSliderInput = function() {
         config.year = this.value;
@@ -160,13 +154,11 @@ function createGraphs(error, materialData) {
 
         // ---- Add the hover functions ----------------------------------------
 
-        /*d3.selectAll(flowchartImport.datapointSelector)
-            .on('mouseover', flowchartOver)
-            .on('mouseout', flowchartOut);*/
+        d3.selectAll(streamchartImport.datapointSelector)
+            .on('mouseover', flowchartOver);
 
-        /*d3.selectAll(flowchartExport.datapointSelector)
-            .on('mouseover', flowchartOver)
-            .on('mouseout', flowchartOut);*/
+        d3.selectAll(streamchartExport.datapointSelector)
+            .on('mouseover', flowchartOver);
     }
 
     // Run the first update.

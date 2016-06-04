@@ -19,9 +19,10 @@ function Streamchart(container, config, flowDirection) {
         top: 10,
         bottom: 10,
         left: 10,
-        right: 10
+        right: 10,
+        label: 10, // Margin between bars and labels.
     }};
-    this.size.totalWidth = 100;
+    this.size.totalWidth = 200;
     this.size.totalHeight = 800;
     this.size.width = this.size.totalWidth - this.size.margin.left - this.size.margin.right;
     this.size.height = this.size.totalHeight - this.size.margin.top - this.size.margin.bottom;
@@ -29,6 +30,7 @@ function Streamchart(container, config, flowDirection) {
     this.size.barWidth = this.size.totalWidth * 0.1;
 
     this.class = "streamchart" + this.flowDirection;
+    this.datapointSelector = "." + this.class + " .bar";
 
     this.fontSize = 15;
 
@@ -48,7 +50,7 @@ function Streamchart(container, config, flowDirection) {
     // Add the containers.
     this.flowContainer = this.chart.append("g");
     this.labelContainer = this.chart.append("g")
-        .attr("transform", "translate(" + this.size.barWidth + ",0)");
+        .attr("transform", "translate(" + (this.size.barWidth + this.size.margin.label) + ",0)");
 }
 
 // -----------------------------------------------------------------------------
@@ -69,20 +71,32 @@ Streamchart.prototype.update = function(config) {
 
     // ---- Datapoint location functions ---------------------------------------
 
-    var barPos = function(c) {
+    barPos = function(c) {
         return function(d) {
             return "translate(0," + c.yscale(d.y0) + ")";
         }
     };
-    var barHeight = function(c) {
+    barHeight = function(c) {
         return function(d) {
             return c.yscale(d.y1 - d.y0);
         }
     };
 
-    var labelPos = function(c) {
+    labelPos = function(c) {
         return function(d) {
-            return "translate(0," + c.yscale(d.y0) + ")";
+            return "translate(0," + (c.yscale(d.y0) + c.yscale(d.y1 - d.y0)/2 ) + ")";
+        }
+    };
+
+    // Checks if the label fits within the height of the bar
+    // and adjusts the opacity accordingly.
+    labelOpacity = function(c) {
+        return function(d) {
+            if (c.yscale(d.y1 - d.y0) > c.fontSize) {
+                return 1;
+            } else {
+                return 0;
+            }
         }
     };
 
@@ -106,29 +120,44 @@ Streamchart.prototype.update = function(config) {
 
     newDatapoint.append("rect")
         .classed("bar", true)
-        .style("fill", "rgb(1, 26, 50)")
-        .style("stroke", "rgb(0, 62, 121)");
+        .style("fill", "rgb(0, 16, 31)")
+        .style("stroke", "rgb(0, 97, 190)");
 
     var newLabel = label.enter().append("g")
-        .style("opacity", 1);
+        .style("opacity", labelOpacity(this));
 
     newLabel.append("text")
         .classed("label-name", true)
         .html(function(d) { return d.key; });
+    newLabel.append("line")
+        .classed("label-separator", true)
+        .attr("x1", -2)
+        .attr("y1", 0)
+        .attr("x2", -this.size.margin.label + 2)
+        .attr("y2", 0);
 
     // ---- Update ----
 
     datapoint.transition()
         .duration(config.transitionDuration)
-        .attr("transform", barPos(this));
+        .attr("transform", barPos(this))
+        .style("opacity", 1);
 
     datapoint.select(".bar").transition()
         .duration(config.transitionDuration)
         .attr("height", barHeight(this))
-        .attr("width", this.size.barWidth);
+        .attr("width", this.size.barWidth)
+        .style("fill", function(d) {
+            if (config.hoveredCountry == d.key) {
+                return "rgb(18, 54, 87)";
+            } else {
+                return "rgb(0, 16, 31)";
+            }
+        });
 
     label.transition()
         .duration(config.transitionDuration)
+        .style("opacity", labelOpacity(this))
         .attr("transform", labelPos(this));
 
     // ---- Remove ----
