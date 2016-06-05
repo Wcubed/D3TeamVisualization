@@ -20,10 +20,13 @@ function createGraphs(error, materialData) {
 
     // The filter and update configuration.
     var config = {
-        // Data.
+        // ---- Data ----
+        // Data nested by year -> commodity -> country -> flow.
         nestedData: nestData(materialData),
+        // Data nested by commodity.
+        commodityTimeData: commodityTimeData(materialData),
 
-        // Filters.
+        // ---- Filters ----
         year: 2012,
         commodity: "Silicon, <99.99% pure",
         hoveredCountry: "",
@@ -33,6 +36,7 @@ function createGraphs(error, materialData) {
     }
 
     console.log(config.nestedData);
+    console.log(config.commodityTimeData);
 
     // Make a list of all available years, as integers.
     config.yearList = config.nestedData.keys();
@@ -52,6 +56,8 @@ function createGraphs(error, materialData) {
     // ---- Hover/filter functions ---------------------------------------------
 
     var flowchartOver = function(d) {
+        console.log("Hover update");
+
         config.hoveredCountry = d.key;
         config.transitionDuration = 100;
         updatePlots(config);
@@ -59,6 +65,8 @@ function createGraphs(error, materialData) {
 
     // Change the year.
     var yearSliderInput = function() {
+        console.log("Year update");
+
         config.year = this.value;
         config.transitionDuration = 1000;
         updatePlots(config);
@@ -66,6 +74,8 @@ function createGraphs(error, materialData) {
 
     // Changes the selected commodity.
     var commodityInput = function(d) {
+        console.log("Commodity update");
+
         // Is there data on this commodity in this year?
         if (config.nestedData.get(config.year).has(d)) {
             config.transitionDuration = 1000;
@@ -126,6 +136,8 @@ function createGraphs(error, materialData) {
     // ---- Plot update function -----------------------------------------------
 
     function updatePlots(config) {
+        console.log("-- Updating --");
+
         //flowchartImport.update(config);
         //flowchartExport.update(config);
         //scatterplot.update(config);
@@ -159,9 +171,12 @@ function createGraphs(error, materialData) {
 
         d3.selectAll(streamchartExport.datapointSelector)
             .on('mouseover', flowchartOver);
+
+        console.log("-- done --");
     }
 
     // Run the first update.
+    console.log("First update");
     updatePlots(config);
 }
 
@@ -182,6 +197,18 @@ function nestData(data) {
         .key(function(d) { return d.Commodity; })
         .key(function(d) { return d.Country; })
         .key(function(d) { return d.Flow; })
+        .rollup(function(leaves) { return d3.sum(leaves, function(d) {  return d.Quantity; }); })
+        .map(data, d3.map);
+
+    return nest;
+}
+
+function commodityTimeData(data) {
+    var nest = d3.nest()
+        .key(function(d) { return d.Commodity; })
+        .key(function(d) { return d.Flow; })
+        .key(function(d) { return d.Country; })
+        .key(function(d) { return d.Year; })
         .rollup(function(leaves) { return d3.sum(leaves, function(d) {  return d.Quantity; }); })
         .map(data, d3.map);
 

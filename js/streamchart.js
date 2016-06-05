@@ -48,8 +48,9 @@ function Streamchart(container, config, flowDirection) {
         .attr("transform", "translate(" + this.size.margin.left + "," + this.size.margin.top + ")");
 
     // Add the containers.
-    this.flowContainer = this.chart.append("g");
-    this.labelContainer = this.chart.append("g");
+    this.streamContainer = this.chart.append("g"); // Contains the streams.
+    this.flowContainer = this.chart.append("g"); // Contains the bars.
+    this.labelContainer = this.chart.append("g"); // Contains labels.
 }
 
 // -----------------------------------------------------------------------------
@@ -59,6 +60,9 @@ function Streamchart(container, config, flowDirection) {
 Streamchart.prototype.update = function(config) {
     // ---- Get the data -------------------------------------------------------
     this.wrangleData(config);
+    this.setStackData(config);
+
+    console.log(this.layers);
 
     // Set scale domain.
     this.yscale.domain([0, this.maxDataValue]);
@@ -106,6 +110,9 @@ Streamchart.prototype.update = function(config) {
         return d.key;
     };
 
+    var stream = this.streamContainer.selectAll("path")
+        .data(this.layers);
+
     var datapoint = this.flowContainer.selectAll("g")
         .data(this.data, keyFn);
 
@@ -113,6 +120,9 @@ Streamchart.prototype.update = function(config) {
         .data(this.data, keyFn);
 
     // ---- Enter ----
+
+    var newStream = stream.enter().append("path")
+        .attr("d", function(d) { console.log(d); return 1; });
 
     var newDatapoint = datapoint.enter().append("g")
         .attr("transform", barPos(this))
@@ -228,4 +238,40 @@ Streamchart.prototype.wrangleData = function(config) {
 
     this.data = data;
     this.maxDataValue = y0;
+}
+
+
+Streamchart.prototype.setStackData = function(config) {
+    // Setup the stack parameters.
+    this.stack = d3.layout.stack()
+        .offset("silhouette")
+        .values(function(d) { return d.value.entries(); })
+        .x(function(d) { return d.key; })
+        .y(function(d) { return d.value; });
+
+    this.stackData = config.commodityTimeData.get(config.commodity)
+        .get(this.flowDirection).entries();
+
+    // We need to fill in the gaps in the data.
+    var stackData = this.stackData;
+
+    this.stackData.forEach(function(d, i) { // For every country.
+        config.yearList.forEach(function(y) { // For every year.
+
+            var value = d.value.get(y);
+
+            // If there is no data here: default to 0.
+            if (value) {
+                stackData[i].value.set(y, value);
+            } else {
+                stackData[i].value.set(y, 0);
+            }
+        });
+    });
+
+    this.stackData = stackData;
+
+    console.log(this.stackData);
+
+    this.layers = this.stack(this.stackData);
 }
