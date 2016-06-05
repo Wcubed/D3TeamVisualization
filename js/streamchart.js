@@ -22,7 +22,7 @@ function Streamchart(container, config, flowDirection) {
         right: 10,
         label: 10, // Margin between bars and labels.
     }};
-    this.size.totalWidth = 300;
+    this.size.totalWidth = 800;
     this.size.totalHeight = 800;
     this.size.width = this.size.totalWidth - this.size.margin.left - this.size.margin.right;
     this.size.height = this.size.totalHeight - this.size.margin.top - this.size.margin.bottom;
@@ -35,8 +35,16 @@ function Streamchart(container, config, flowDirection) {
     this.fontSize = 15;
 
     // Scales.
-    this.yscale = d3.scale.linear()
+    this.barYscale = d3.scale.linear()
         .range([0, this.size.height]);
+
+    this.flowXscale = d3.scale.linear()
+        .range([0, this.size.width])
+        .domain([config.yearList[0], config.yearList[config.yearList.length-1]]);
+
+    this.flowYscale = d3.scale.linear()
+        .range([0, this.size.height])
+        .domain([0, 5000000000]);
 
     // ---- Build the chart svg ------------------------------------------------
     this.chart = d3.select(container).append("svg")
@@ -62,32 +70,29 @@ Streamchart.prototype.update = function(config) {
     this.wrangleData(config);
     this.setStackData(config);
 
-    console.log(this.layers);
+    //console.log(this.layers);
 
     // Set scale domain.
-    this.yscale.domain([0, this.maxDataValue]);
+    this.barYscale.domain([0, this.maxDataValue]);
 
     //console.log("---- Updating" + this.flowDirection + " ----");
-    //console.log(this.maxDataValue);
-    //console.log(this.yscale(this.maxDataValue));
-    //console.log(this.data);
 
     // ---- Datapoint location functions ---------------------------------------
 
     barPos = function(c) {
         return function(d) {
-            return "translate(0," + c.yscale(d.y0) + ")";
+            return "translate(0," + c.barYscale(d.y0) + ")";
         }
     };
     barHeight = function(c) {
         return function(d) {
-            return c.yscale(d.y1 - d.y0);
+            return c.barYscale(d.y1 - d.y0);
         }
     };
 
     labelPos = function(c) {
         return function(d) {
-            return "translate(0," + (c.yscale(d.y0) + c.yscale(d.y1 - d.y0)/2 ) + ")";
+            return "translate(0," + (c.barYscale(d.y0) + c.barYscale(d.y1 - d.y0)/2 ) + ")";
         }
     };
 
@@ -95,13 +100,48 @@ Streamchart.prototype.update = function(config) {
     // and adjusts the opacity accordingly.
     labelOpacity = function(c) {
         return function(d) {
-            if (c.yscale(d.y1 - d.y0) > c.fontSize) {
+            if (c.barYscale(d.y1 - d.y0) > c.fontSize) {
                 return 1;
             } else {
                 return 0;
             }
         }
     };
+
+    // Flow x position.
+    flowX = function(c) {
+        return function(d) {
+            return c.flowXscale(d.x);
+        }
+    }
+
+    // Flow y position.
+    flowY0 = function(c) {
+        return function(d) {
+            return c.flowYscale(d.y0);
+        }
+    }
+
+    // Flow y size.
+    flowY1 = function(c) {
+        return function(d) {
+            return c.flowYscale(d.y0 + d.y);
+        }
+    }
+
+    pathArea = function(c) {
+        return function(d) {
+            return c.area(d);
+        }
+    }
+
+
+    // Setup the area parameters.
+    this.area = d3.svg.area()
+        .interpolate("cardinal")
+        .x(flowX(this))
+        .y0(flowY0(this))
+        .y1(flowY1(this));
 
     // ---- Datapoints ---------------------------------------------------------
 
@@ -121,8 +161,7 @@ Streamchart.prototype.update = function(config) {
 
     // ---- Enter ----
 
-    var newStream = stream.enter().append("path")
-        .attr("d", function(d) { console.log(d); return 1; });
+    var newStream = stream.enter().append("path");
 
     var newDatapoint = datapoint.enter().append("g")
         .attr("transform", barPos(this))
@@ -164,6 +203,10 @@ Streamchart.prototype.update = function(config) {
 
     // ---- Update ----
 
+    stream.transition()
+        .duration(config.transitionDuration)
+        .attr("d", pathArea(this));
+
     datapoint.transition()
         .duration(config.transitionDuration)
         .attr("transform", barPos(this))
@@ -191,6 +234,8 @@ Streamchart.prototype.update = function(config) {
 
 
     // ---- Remove ----
+
+    stream.exit().remove()
 
     datapoint.exit().transition()
         .duration(config.transitionDuration)
@@ -245,33 +290,33 @@ Streamchart.prototype.setStackData = function(config) {
     // Setup the stack parameters.
     this.stack = d3.layout.stack()
         .offset("silhouette")
-        .values(function(d) { return d.value.entries(); })
-        .x(function(d) { return d.key; })
-        .y(function(d) { return d.value; });
+        .values(function(d) { return d; });
 
     this.stackData = config.commodityTimeData.get(config.commodity)
         .get(this.flowDirection).entries();
 
     // We need to fill in the gaps in the data.
     var stackData = this.stackData;
+    var filledStackData = [];
 
     this.stackData.forEach(function(d, i) { // For every country.
+
+        filledStackData.push([]);
+
         config.yearList.forEach(function(y) { // For every year.
 
             var value = d.value.get(y);
 
             // If there is no data here: default to 0.
             if (value) {
-                stackData[i].value.set(y, value);
+                filledStackData[i].push({'x': y, 'y': value});
             } else {
-                stackData[i].value.set(y, 0);
+                filledStackData[i].push({'x': y, 'y': 0});
             }
         });
     });
 
-    this.stackData = stackData;
-
-    console.log(this.stackData);
+    this.stackData = filledStackData;
 
     this.layers = this.stack(this.stackData);
 }

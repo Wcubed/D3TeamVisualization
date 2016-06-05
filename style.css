@@ -130,6 +130,10 @@ body {
     shape-rendering: crispEdges;
 }
 
+.streamchart path {
+    stroke: rgb(8, 43, 94);
+}
+
 /* ---- Streamchart ---- */
 
 .hidden {
