@@ -205,7 +205,12 @@ Streamchart.prototype.update = function(config) {
 
     stream.transition()
         .duration(config.transitionDuration)
-        .attr("d", pathArea(this));
+        .attr("d", pathArea(this))
+        .style("fill", function(d) {
+            if (d[0].country == config.hoveredCountry) {
+                return "rgb(0, 26, 255)";
+            }
+        });
 
     datapoint.transition()
         .duration(config.transitionDuration)
@@ -309,9 +314,9 @@ Streamchart.prototype.setStackData = function(config) {
 
             // If there is no data here: default to 0.
             if (value) {
-                filledStackData[i].push({'x': y, 'y': value});
+                filledStackData[i].push({'x': y, 'y': value, 'country': d.key});
             } else {
-                filledStackData[i].push({'x': y, 'y': 0});
+                filledStackData[i].push({'x': y, 'y': 0, 'country': d.key});
             }
         });
     });
