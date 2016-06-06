@@ -22,15 +22,19 @@ function Streamchart(container, config, flowDirection) {
         right: 10,
         label: 10, // Margin between bars and labels.
     }};
-    this.size.totalWidth = 800;
-    this.size.totalHeight = 800;
+    this.size.totalWidth = 1000;
+    this.size.totalHeight = 400;
     this.size.width = this.size.totalWidth - this.size.margin.left - this.size.margin.right;
     this.size.height = this.size.totalHeight - this.size.margin.top - this.size.margin.bottom;
 
-    this.size.barWidth = this.size.totalWidth * 0.1;
+    this.size.barChartWidth = this.size.width * 0.1;
+    this.size.margin.interChart = this.size.width * 0.1;
+    this.size.streamChartStartX = this.size.barChartWidth + this.size.margin.interChart;
+    this.size.streamChartWidth = this.size.width - this.size.barChartWidth - this.size.margin.interChart;
 
     this.class = "streamchart" + this.flowDirection;
-    this.datapointSelector = "." + this.class + " .bar";
+    this.barSelector = "." + this.class + " .bar";
+    this.streamSelector = "." + this.class + " .stream";
 
     this.fontSize = 15;
 
@@ -39,7 +43,8 @@ function Streamchart(container, config, flowDirection) {
         .range([0, this.size.height]);
 
     this.flowXscale = d3.scale.linear()
-        .range([0, this.size.width])
+        .range([this.size.streamChartStartX,
+            this.size.streamChartStartX + this.size.streamChartWidth])
         .domain([config.yearList[0], config.yearList[config.yearList.length-1]]);
 
     this.flowYscale = d3.scale.linear()
@@ -59,6 +64,10 @@ function Streamchart(container, config, flowDirection) {
     this.streamContainer = this.chart.append("g"); // Contains the streams.
     this.flowContainer = this.chart.append("g"); // Contains the bars.
     this.labelContainer = this.chart.append("g"); // Contains labels.
+    this.lineContainer = this.chart.append("g"); // Contains reference lines.
+
+    this.yearLine = this.lineContainer.append("line")
+        .classed("year-line", true);
 }
 
 // -----------------------------------------------------------------------------
@@ -138,7 +147,7 @@ Streamchart.prototype.update = function(config) {
 
     // Setup the area parameters.
     this.area = d3.svg.area()
-        .interpolate("cardinal")
+        .interpolate("basis")
         .x(flowX(this))
         .y0(flowY0(this))
         .y1(flowY1(this));
@@ -161,7 +170,8 @@ Streamchart.prototype.update = function(config) {
 
     // ---- Enter ----
 
-    var newStream = stream.enter().append("path");
+    var newStream = stream.enter().append("path")
+        .classed("stream", true);
 
     var newDatapoint = datapoint.enter().append("g")
         .attr("transform", barPos(this))
@@ -180,7 +190,7 @@ Streamchart.prototype.update = function(config) {
     newLabel.append("text")
         .classed("label", true)
         .classed("label-name", true)
-        .attr("x", this.size.barWidth + this.size.margin.label)
+        .attr("x", this.size.barChartWidth + this.size.margin.label)
         .html(function(d) { return d.key; })
     newLabel.append("text")
         .classed("label", true)
@@ -190,9 +200,9 @@ Streamchart.prototype.update = function(config) {
 
     newLabel.append("line")
         .classed("label-separator", true)
-        .attr("x1", this.size.barWidth + 2)
+        .attr("x1", this.size.barChartWidth + 2)
         .attr("y1", 0)
-        .attr("x2", this.size.barWidth + this.size.margin.label - 2)
+        .attr("x2", this.size.barChartWidth + this.size.margin.label - 2)
         .attr("y2", 0);
     newLabel.append("line")
         .classed("label-separator", true)
@@ -207,8 +217,10 @@ Streamchart.prototype.update = function(config) {
         .duration(config.transitionDuration)
         .attr("d", pathArea(this))
         .style("fill", function(d) {
-            if (d[0].country == config.hoveredCountry) {
-                return "rgb(0, 26, 255)";
+            if (d[0].key == config.hoveredCountry) {
+                return "rgba(0, 177, 255, 0.71)";
+            } else {
+                return "rgba(0, 177, 255, 0)";
             }
         });
 
@@ -220,7 +232,7 @@ Streamchart.prototype.update = function(config) {
     datapoint.select(".bar").transition()
         .duration(config.transitionDuration)
         .attr("height", barHeight(this))
-        .attr("width", this.size.barWidth)
+        .attr("width", this.size.barChartWidth)
         .style("fill", function(d) {
             if (config.hoveredCountry == d.key) {
                 return "rgb(18, 54, 87)";
@@ -237,6 +249,12 @@ Streamchart.prototype.update = function(config) {
     label.select(".label-percentage")
         .html(function(d) { return Math.round(d.percentage * 10) / 10 + "%"; });
 
+    this.yearLine.transition()
+        .duration(config.transitionDuration)
+        .attr("x1", this.flowXscale(config.year))
+        .attr("y1", 0)
+        .attr("x2", this.flowXscale(config.year))
+        .attr("y2", this.size.height);
 
     // ---- Remove ----
 
@@ -294,6 +312,7 @@ Streamchart.prototype.wrangleData = function(config) {
 Streamchart.prototype.setStackData = function(config) {
     // Setup the stack parameters.
     this.stack = d3.layout.stack()
+        .order("inside-out")
         .offset("silhouette")
         .values(function(d) { return d; });
 
@@ -314,9 +333,9 @@ Streamchart.prototype.setStackData = function(config) {
 
             // If there is no data here: default to 0.
             if (value) {
-                filledStackData[i].push({'x': y, 'y': value, 'country': d.key});
+                filledStackData[i].push({'x': y, 'y': value, 'key': d.key});
             } else {
-                filledStackData[i].push({'x': y, 'y': 0, 'country': d.key});
+                filledStackData[i].push({'x': y, 'y': 0, 'key': d.key});
             }
         });
     });

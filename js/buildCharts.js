@@ -55,11 +55,19 @@ function createGraphs(error, materialData) {
 
     // ---- Hover/filter functions ---------------------------------------------
 
-    var flowchartOver = function(d) {
+    var flowchartOverBar = function(d) {
         console.log("Hover update");
 
         config.hoveredCountry = d.key;
-        config.transitionDuration = 100;
+        config.transitionDuration = 500;
+        updatePlots(config);
+    }
+
+    var flowchartOverStream = function(d) {
+        console.log("Hover update");
+
+        config.hoveredCountry = d[0].key;
+        config.transitionDuration = 500;
         updatePlots(config);
     }
 
@@ -76,12 +84,9 @@ function createGraphs(error, materialData) {
     var commodityInput = function(d) {
         console.log("Commodity update");
 
-        // Is there data on this commodity in this year?
-        if (config.nestedData.get(config.year).has(d)) {
-            config.transitionDuration = 1000;
-            config.commodity = d;
-            updatePlots(config);
-        }
+        config.transitionDuration = 1000;
+        config.commodity = d;
+        updatePlots(config);
     }
 
     // ---- Build the main container -------------------------------------------
@@ -124,13 +129,17 @@ function createGraphs(error, materialData) {
     var detailsYear = detailsDisplay.append("p")
         .classed("details-year", true);
 
+    // To contain the graphs in.
+    mainContainer.append("div")
+        .classed("graph-container", true);
+
     // ---- Build the plots ----------------------------------------------------
 
     //var flowchartImport = new Flowchart("main", config, "Import");
     //var flowchartExport = new Flowchart("main", config, "Export");
 
-    var streamchartImport = new Streamchart("main", config, "Import");
-    var streamchartExport = new Streamchart("main", config, "Export");
+    var streamchartImport = new Streamchart(".graph-container", config, "Import");
+    var streamchartExport = new Streamchart(".graph-container", config, "Export");
     //var scatterplot = createScatterplot("main", config);
 
     // ---- Plot update function -----------------------------------------------
@@ -166,11 +175,17 @@ function createGraphs(error, materialData) {
 
         // ---- Add the hover functions ----------------------------------------
 
-        d3.selectAll(streamchartImport.datapointSelector)
-            .on('mouseover', flowchartOver);
+        d3.selectAll(streamchartImport.barSelector)
+            .on('mouseover', flowchartOverBar);
 
-        d3.selectAll(streamchartExport.datapointSelector)
-            .on('mouseover', flowchartOver);
+        d3.selectAll(streamchartImport.streamSelector)
+            .on('mouseover', flowchartOverStream);
+
+        d3.selectAll(streamchartExport.barSelector)
+            .on('mouseover', flowchartOverBar);
+
+        d3.selectAll(streamchartExport.streamSelector)
+            .on('mouseover', flowchartOverStream);
 
         console.log("-- done --");
     }

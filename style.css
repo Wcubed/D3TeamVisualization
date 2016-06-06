@@ -85,6 +85,12 @@ body {
 
 /* ---- /Details display ---- */
 
+
+.graph-container {
+    width: auto;
+    float: left;
+}
+
 /* ---- Flowchart ---- */
 
 .flowchart {
@@ -130,8 +136,14 @@ body {
     shape-rendering: crispEdges;
 }
 
+.streamchart .year-line {
+    stroke: white;
+    shape-rendering: crispEdges;
+}
+
 .streamchart path {
-    stroke: rgb(8, 43, 94);
+    stroke: rgba(58, 149, 189, 0.08);
+    shape-rendering: geometricPrecision;
 }
 
 /* ---- Streamchart ---- */
