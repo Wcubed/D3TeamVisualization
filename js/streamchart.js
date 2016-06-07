@@ -159,8 +159,12 @@ Streamchart.prototype.update = function(config) {
         return d.key;
     };
 
+    var streamKeyFn = function(d) {
+        return d[0].key;
+    }
+
     var stream = this.streamContainer.selectAll("path")
-        .data(this.layers);
+        .data(this.layers, streamKeyFn);
 
     var datapoint = this.flowContainer.selectAll("g")
         .data(this.data, keyFn);
@@ -180,7 +184,12 @@ Streamchart.prototype.update = function(config) {
     newDatapoint.append("rect")
         .classed("bar", true)
         .attr("height", 0)
-        .style("fill", "rgb(0, 16, 31)")
+        .style("fill", function(d) {
+            var continent = config.continentData[d.key];
+            if (continent) {
+                return config.continentMeta[continent].col;
+            };
+        })
         .style("stroke", "rgb(0, 97, 190)");
 
     var newLabel = label.enter().append("g")
@@ -217,10 +226,16 @@ Streamchart.prototype.update = function(config) {
         .duration(config.transitionDuration)
         .attr("d", pathArea(this))
         .style("fill", function(d) {
+            var continent = config.continentData[d[0].key];
+            if (continent) {
+                return config.continentMeta[continent].col;
+            };
+        })
+        .style("stroke", function(d) {
             if (d[0].key == config.hoveredCountry) {
-                return "rgba(0, 177, 255, 0.71)";
+                return "rgb(5, 143, 255)";
             } else {
-                return "rgba(0, 177, 255, 0)";
+                return "rgba(255, 255, 255, 0.08)";
             }
         });
 
@@ -237,7 +252,10 @@ Streamchart.prototype.update = function(config) {
             if (config.hoveredCountry == d.key) {
                 return "rgb(18, 54, 87)";
             } else {
-                return "rgb(0, 16, 31)";
+                var continent = config.continentData[d.key];
+                if (continent) {
+                    return config.continentMeta[continent].col;
+                };
             }
         });
 
@@ -277,18 +295,34 @@ Streamchart.prototype.update = function(config) {
 
 Streamchart.prototype.wrangleData = function(config) {
     var rawData = config.nestedData.get(config.year)
-        .get(config.commodity);
+        .get(config.commodity).entries();
 
     var data = [];
         y0 = 0;
         flowDirection = this.flowDirection;
 
+    rawData.sort(function(a, b) {
+        contA = config.continentData[a.key];
+        contB = config.continentData[b.key];
+        iA = 0;
+        iB = 0;
+
+        if (contA) {
+            iA = config.continentMeta[contA].i;
+        }
+        if (contB) {
+            iB = config.continentMeta[contB].i;
+        }
+
+        return iA - iB;
+    });
+
     // Calculate the start and ending points of the data bars.
-    rawData.forEach(function(key, value) {
+    rawData.forEach(function(e, i) {
         var d = {};
 
-        d.key = key;
-        d.value = value.get(flowDirection);
+        d.key = e.key;
+        d.value = e.value.get(flowDirection);
 
         if (d.value) {
             d.y0 = y0;
@@ -312,12 +346,28 @@ Streamchart.prototype.wrangleData = function(config) {
 Streamchart.prototype.setStackData = function(config) {
     // Setup the stack parameters.
     this.stack = d3.layout.stack()
-        .order("inside-out")
         .offset("silhouette")
         .values(function(d) { return d; });
 
     this.stackData = config.commodityTimeData.get(config.commodity)
         .get(this.flowDirection).entries();
+
+    // Order by continent.
+    this.stackData.sort(function(a, b) {
+        contA = config.continentData[a.key];
+        contB = config.continentData[b.key];
+        iA = 0;
+        iB = 0;
+
+        if (contA) {
+            iA = config.continentMeta[contA].i;
+        }
+        if (contB) {
+            iB = config.continentMeta[contB].i;
+        }
+
+        return iA - iB;
+    });
 
     // We need to fill in the gaps in the data.
     var stackData = this.stackData;

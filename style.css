@@ -142,7 +142,6 @@ body {
 }
 
 .streamchart path {
-    stroke: rgba(58, 149, 189, 0.08);
     shape-rendering: geometricPrecision;
 }
 

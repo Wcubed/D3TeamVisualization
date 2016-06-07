@@ -10,10 +10,11 @@
 // Load the data and create the graph.
 d3_queue.queue()
     .defer(d3.csv, "data/metalData.csv", coerceTypes)
+    .defer(d3.csv, "data/continents.csv")
     .await(createGraphs);
 
 
-function createGraphs(error, materialData) {
+function createGraphs(error, materialData, continentData) {
     if (error) throw error;
 
     // ---- Initialize configuration -------------------------------------------
@@ -26,6 +27,17 @@ function createGraphs(error, materialData) {
         // Data nested by commodity.
         commodityTimeData: commodityTimeData(materialData),
 
+        continentData: convertContinentdata(continentData),
+
+        continentMeta: {
+            "Africa": {col: "rgb(0, 255, 214)", i: 0},
+            "Asia": {col: "rgb(78, 0, 191)", i: 1},
+            "Europe": {col: "rgb(156, 236, 87)", i: 2},
+            "North America": {col: "rgb(244, 22, 80)", i: 3},
+            "South America": {col: "rgb(194, 38, 139)", i: 4},
+            "Oceania": {col: "rgb(244, 88, 11)", i: 5},
+        },
+
         // ---- Filters ----
         year: 2012,
         commodity: "Silicon, <99.99% pure",
@@ -34,9 +46,6 @@ function createGraphs(error, materialData) {
         // Update information.
         transitionDuration: 1000, // In milliseconds.
     }
-
-    console.log(config.nestedData);
-    console.log(config.commodityTimeData);
 
     // Make a list of all available years, as integers.
     config.yearList = config.nestedData.keys();
@@ -228,4 +237,14 @@ function commodityTimeData(data) {
         .map(data, d3.map);
 
     return nest;
+}
+
+function convertContinentdata(data) {
+    var dict = {};
+
+    data.forEach(function(d) {
+        dict[d.Country] = d.Continent;
+    });
+
+    return dict;
 }
