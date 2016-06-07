@@ -12,7 +12,7 @@
 function Scatterplot(container, config) {
 
     // Setup margins and graph size.
-    var size = { margin: { top: 50, right: 50, bottom: 50, left: 50 } };
+    var size = { margin: { top: 50, right: 20, bottom: 50, left: 20 } };
     size.totalWidth = 600;
     size.totalHeight = 600;
     size.width = size.totalWidth - size.margin.left - size.margin.right;
@@ -28,11 +28,11 @@ function Scatterplot(container, config) {
         "." + scatterplot.class + " ." + scatterplot.datapointClass;
 
     // Scales.
-    var importY = d3.scale.linear()
-        .range([0, size.height]);
-
     var exportX = d3.scale.linear()
         .range([0, size.width]);
+
+    var importY = d3.scale.linear()
+        .range([size.height, 0]);
 
 
     // ---- Build the chart ----------------------------------------------------
@@ -44,28 +44,47 @@ function Scatterplot(container, config) {
         .append("g") // Add the margin offset.
         .attr("transform", "translate(" + size.margin.left + "," + size.margin.top + ")");
 
+    // Define the div for the tooltip
+    var div = d3.select("body").append("div")   
+        .attr("class", "tooltip")               
+        .style("opacity", 0);
+
     // ---- Update function ----------------------------------------------------
 
     scatterplot.update = function(config) {
         // Get the currenly selected data.
         var data = config.nestedData
             .get(config.year)
-            .get(config.commodity);
+            .get(config.commodity).entries();
 
-        console.log(data);
+        // Compute Max values for Import and Export
+        var maxExport = -1;
+        var maxImport = -1;
 
-        /*
+        for (i=0; i<data.length; i++) {
+
+            var prevExport = data[i].value.get("Export");
+            if (prevExport > maxExport) {
+                maxExport = prevExport;
+            }
+
+            var prevImport = data[i].value.get("Import");
+            if (prevImport > maxImport) {
+                maxImport = prevImport;
+            }
+        }
+
+        console.log(" Export: " + maxExport + "Import: " + maxImport);
+        
+        
         // Scale domains.
-        var maxScalex = Math.max(exportData);
-        var maxScaleY = Math.max(importData);
+        exportX.domain([0, maxExport]);
+        importY.domain([0, maxImport]);
 
-        exportX.domain([0, maxScalex]);
-        importY.domain([0, maxScaleY]);
-        */
 
         // Setup X and Y Axis
-        var yAxis = d3.svg.axis().scale(importY).orient("left").ticks(10);
         var xAxis = d3.svg.axis().scale(exportX).orient("bottom").ticks(5);
+        var yAxis = d3.svg.axis().scale(importY).orient("right").ticks(5);
 
         // Draw X Axis
         chart.append("g")
@@ -76,9 +95,9 @@ function Scatterplot(container, config) {
         .append("text")
             .attr("class", "label")
             .attr("x", size.width)
-            .attr("y", -6)
+            .attr("dy", -20)
             .style("text-anchor", "end")
-            .text("Export");
+            .text("Export (kg)");
 
         // Draw Y Axis
         chart.append("g")
@@ -88,10 +107,10 @@ function Scatterplot(container, config) {
         .append("text")
             .attr("class", "label")
             .attr("transform", "rotate(-90)")
-            .attr("y", 6)
-            .attr("dy", ".71em")
+            .attr("x", 0)
+            .attr("dy", -6)
             .style("text-anchor", "end")
-            .text("Import");
+            .text("Import (kg)");
 
         // ---- Datapoints -----------------------------------------------------
         var datapoints = chart.selectAll("g")
@@ -100,26 +119,42 @@ function Scatterplot(container, config) {
         // -- Enter --
         var newDatapoints = datapoints.enter().append("g")
             .classed(scatterplot.datapointClass, true)
-            .classed("dots", true);
+            .classed("dots", true)
 
         // -- Update --
-
         chart.selectAll(".dots")
           .append("circle")
             .attr("class", "dot")
             .attr("r", 5)
-            .attr("cx", function(d) { return exportX(d["Import"]); })
-            .attr("cy", function(d) { return importY(d["Export"]); })
-            .style("fill", "red");
-
+            .attr("cx", function(d){ 
+                if(d.value.get("Export") != null) { 
+                    return ( 15 + exportX(d.value.get("Export")) ) } 
+                else { return 15 }; 
+            })
+            .attr("cy", function(d) { 
+                if(d.value.get("Import") != null) { 
+                    return ( importY(d.value.get("Import")) - 10) } 
+                    else { return 10 }; 
+            })
+            .style("fill", "red")
+            .on("mouseover", function(d){
+                //alert("Country: " + d.key + "  " + "Export: " + d.value.get("Export") + "  " + "Import: " + d.value.get("Import"));
+              div.transition()        
+                .duration(200)      
+                .style("opacity", .9);      
+              div.html("Country: " + d.key + "<br/>" + "Export: " + d.value.get("Export") + "<br/>" + "Import: " + d.value.get("Import"))  
+                .style("left", (d3.event.pageX) + "px")     
+                .style("top", (d3.event.pageY - 28) + "px");
+            })
+            .on("mouseout", function(d){
+              div.transition()        
+                .duration(500)      
+                .style("opacity", 0);
+            });
         // -- Remove --
-
-        datapoints.exit()
-            .remove();
-
+        datapoints.exit().remove();
     }
 
     // ---- Return the values --------------------------------------------------
-
     return scatterplot;
 }
