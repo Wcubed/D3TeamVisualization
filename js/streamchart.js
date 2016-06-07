@@ -257,7 +257,7 @@ Streamchart.prototype.update = function(config) {
         .attr("d", pathArea(this))
         .style("fill", function(d) {
             if (d[0].key == config.hoveredCountry) {
-                return "rgba(12, 144, 229, 0)";
+                return "rgba(0, 18, 255, 1)";
             } else {
                 var continent = config.continentData[d[0].key];
                 if (continent) {
@@ -283,7 +283,7 @@ Streamchart.prototype.update = function(config) {
         .attr("width", this.size.barChartWidth)
         .style("fill", function(d) {
             if (config.hoveredCountry == d.key) {
-                return "rgba(12, 144, 229, 0)";
+                return "rgba(0, 18, 255, 1)";
             } else {
                 var continent = config.continentData[d.key];
                 if (continent) {

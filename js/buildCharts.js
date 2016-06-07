@@ -152,6 +152,23 @@ function createGraphs(error, materialData, continentData) {
     var detailsExport = detailsDisplay.append("p")
         .classed("details-export", true);
 
+
+    // Continent labels box.
+    var continentLabels = mainContainer.append("div")
+        .classed("details-display", true);
+
+    // Create the labels.
+    for (var cont in config.continentMeta) {
+        if (config.continentMeta.hasOwnProperty(cont)) {
+            continentLabels.append("div")
+                .classed("color-box", true)
+                .style("background-color", config.continentMeta[cont].col);
+            continentLabels.append("p")
+                .classed("color-label", true)
+                .html(cont);
+        }
+    }
+
     // ---- Plot update function -----------------------------------------------
 
     function updatePlots(config) {
