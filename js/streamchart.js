@@ -16,7 +16,7 @@ function Streamchart(container, config, flowDirection) {
 
     // Determine sizes.
     this.size = {margin: {
-        top: 20,
+        top: 30,
         bottom: 40,
         left: 80,
         right: 20,
@@ -48,8 +48,7 @@ function Streamchart(container, config, flowDirection) {
         .domain([config.yearList[0], config.yearList[config.yearList.length-1]]);
 
     this.flowYscale = d3.scale.linear()
-        .range([0, this.size.height])
-        .domain([0, 5000000000]);
+        .range([0, this.size.height]);
 
     // Axis.
     this.xAxis = d3.svg.axis()
@@ -83,10 +82,15 @@ function Streamchart(container, config, flowDirection) {
     this.labelContainer = this.chart.append("g"); // Contains labels.
     this.lineContainer = this.chart.append("g"); // Contains reference lines.
 
+    // Year indicator.
     this.yearLine = this.lineContainer.append("line")
         .classed("year-line", true);
 
+    // Year total label.
+    this.yearTotalLabel = this.lineContainer.append("text")
+        .classed("year-total-label", true);
 
+    // X axis.
     this.chart.append("g")
         .attr("class", "x axis")
         .attr("transform", "translate(0 ," + this.size.height + ")")
@@ -106,6 +110,8 @@ Streamchart.prototype.update = function(config) {
 
     // Set scale domain.
     this.barYscale.domain([0, this.maxDataValue]);
+
+    this.flowYscale.domain([0, this.maxFlowValue]);
 
     //console.log("---- Updating" + this.flowDirection + " ----");
 
@@ -251,7 +257,7 @@ Streamchart.prototype.update = function(config) {
         .attr("d", pathArea(this))
         .style("fill", function(d) {
             if (d[0].key == config.hoveredCountry) {
-                return "rgb(255, 255, 255)";
+                return "rgba(12, 144, 229, 0)";
             } else {
                 var continent = config.continentData[d[0].key];
                 if (continent) {
@@ -277,7 +283,7 @@ Streamchart.prototype.update = function(config) {
         .attr("width", this.size.barChartWidth)
         .style("fill", function(d) {
             if (config.hoveredCountry == d.key) {
-                return "rgb(18, 54, 87)";
+                return "rgba(12, 144, 229, 0)";
             } else {
                 var continent = config.continentData[d.key];
                 if (continent) {
@@ -294,12 +300,22 @@ Streamchart.prototype.update = function(config) {
     label.select(".label-percentage")
         .html(function(d) { return Math.round(d.percentage * 10) / 10 + "%"; });
 
+    // Year line.
     this.yearLine.transition()
         .duration(config.transitionDuration)
         .attr("x1", this.flowXscale(config.year))
         .attr("y1", 0)
         .attr("x2", this.flowXscale(config.year))
         .attr("y2", this.size.height);
+
+    // Year total label.
+
+    this.yearTotalLabel.transition()
+        .duration(config.transitionDuration)
+        .attr("x", this.flowXscale(config.year))
+        .attr("y", -5);
+
+    this.yearTotalLabel.html("Total: " + d3.format(',')(this.yearTotals[config.year]) + " kg");
 
     // ---- Remove ----
 
@@ -400,6 +416,14 @@ Streamchart.prototype.setStackData = function(config) {
     var stackData = this.stackData;
     var filledStackData = [];
 
+    // Count the totals per year.
+    var yearTotals = {};
+    var maxValue = 0;
+
+    config.yearList.forEach(function(d) {
+        yearTotals[d] = 0;
+    });
+
     this.stackData.forEach(function(d, i) { // For every country.
 
         filledStackData.push([]);
@@ -411,11 +435,19 @@ Streamchart.prototype.setStackData = function(config) {
             // If there is no data here: default to 0.
             if (value) {
                 filledStackData[i].push({'x': y, 'y': value, 'key': d.key});
+                yearTotals[y] += value;
+
+                if (yearTotals[y] > maxValue) {
+                    maxValue = yearTotals[y];
+                }
             } else {
                 filledStackData[i].push({'x': y, 'y': 0, 'key': d.key});
             }
         });
     });
+
+    this.yearTotals = yearTotals;
+    this.maxFlowValue = maxValue;
 
     this.stackData = filledStackData;
 

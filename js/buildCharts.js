@@ -30,12 +30,12 @@ function createGraphs(error, materialData, continentData) {
         continentData: convertContinentdata(continentData),
 
         continentMeta: {
-            "Africa": {col: "rgb(0, 255, 214)", i: 0},
-            "Asia": {col: "rgb(78, 0, 191)", i: 1},
-            "Europe": {col: "rgb(156, 236, 87)", i: 2},
-            "North America": {col: "rgb(244, 22, 80)", i: 3},
-            "South America": {col: "rgb(194, 38, 139)", i: 4},
-            "Oceania": {col: "rgb(244, 88, 11)", i: 5},
+            "Africa": {col: "rgba(12, 144, 229, 0.5)", i: 0},
+            "Asia": {col: "rgba(11, 230, 144, 0.5)", i: 1},
+            "Europe": {col: "rgba(11, 230, 33, 0.5)", i: 2},
+            "North America": {col: "rgba(94, 11, 230, 0.5)", i: 3},
+            "South America": {col: "rgba(230, 11, 83, 0.5)", i: 4},
+            "Oceania": {col: "rgba(230, 90, 11, 0.5)", i: 5},
         },
 
         // ---- Filters ----
@@ -65,16 +65,12 @@ function createGraphs(error, materialData, continentData) {
     // ---- Hover/filter functions ---------------------------------------------
 
     var flowchartOverBar = function(d) {
-        console.log("Hover update");
-
         config.hoveredCountry = d.key;
         config.transitionDuration = 500;
         updatePlots(config);
     }
 
     var flowchartOverStream = function(d) {
-        console.log("Hover update");
-
         config.hoveredCountry = d[0].key;
         config.transitionDuration = 500;
         updatePlots(config);
@@ -82,8 +78,6 @@ function createGraphs(error, materialData, continentData) {
 
     // Change the year.
     var yearSliderInput = function() {
-        console.log("Year update");
-
         config.year = this.value;
         config.transitionDuration = 1000;
         updatePlots(config);
@@ -91,8 +85,6 @@ function createGraphs(error, materialData, continentData) {
 
     // Changes the selected commodity.
     var commodityInput = function(d) {
-        console.log("Commodity update");
-
         config.transitionDuration = 1000;
         config.commodity = d;
         updatePlots(config);
@@ -150,18 +142,18 @@ function createGraphs(error, materialData, continentData) {
     var detailsDisplay = mainContainer.append("div")
         .classed("details-display", true);
 
-    var detailsCountryName = detailsDisplay.append("h2");
+    var detailsCountryName = detailsDisplay.append("h2")
+        .html("Details");
+    var detailsYear = detailsDisplay.append("p")
+        .classed("details-year", true);
     var detailsImport = detailsDisplay.append("p")
         .classed("details-import", true);
     var detailsExport = detailsDisplay.append("p")
         .classed("details-export", true);
-    var detailsYear = detailsDisplay.append("p")
-        .classed("details-year", true);
 
     // ---- Plot update function -----------------------------------------------
 
     function updatePlots(config) {
-        console.log("-- Updating --");
 
         //flowchartImport.update(config);
         //flowchartExport.update(config);
@@ -184,10 +176,10 @@ function createGraphs(error, materialData, continentData) {
         // Details display.
         if (hoveredData) {
             detailsCountryName.html(config.hoveredCountry);
-            detailsImport.html(hoveredData.get("Import") + " kg");
-            detailsExport.html(hoveredData.get("Export") + " kg");
+            detailsImport.html("Import: " + d3.format(',')(hoveredData.get("Import")) + " kg");
+            detailsExport.html("Export: " + d3.format(',')(hoveredData.get("Export")) + " kg");
         }
-        detailsYear.html(config.year);
+        detailsYear.html("Year: " + config.year);
 
         // ---- Add the hover functions ----------------------------------------
 
@@ -202,12 +194,9 @@ function createGraphs(error, materialData, continentData) {
 
         d3.selectAll(streamchartExport.streamSelector)
             .on('mouseover', flowchartOverStream);
-
-        console.log("-- done --");
     }
 
     // Run the first update.
-    console.log("First update");
     updatePlots(config);
 }
 
