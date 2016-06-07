@@ -19,10 +19,10 @@ function Streamchart(container, config, flowDirection) {
         top: 30,
         bottom: 40,
         left: 80,
-        right: 20,
+        right: 70,
         label: 10, // Margin between bars and labels.
     }};
-    this.size.totalWidth = 900;
+    this.size.totalWidth = 940;
     this.size.totalHeight = 400;
     this.size.width = this.size.totalWidth - this.size.margin.left - this.size.margin.right;
     this.size.height = this.size.totalHeight - this.size.margin.top - this.size.margin.bottom;
@@ -220,7 +220,7 @@ Streamchart.prototype.update = function(config) {
                 return config.continentMeta[continent].col;
             };
         })
-        .style("stroke", "rgb(0, 97, 190)");
+        .style("stroke", "rgb(70, 113, 209)");
 
     var newLabel = label.enter().append("g")
         .attr("transform", barPos(this))
@@ -257,7 +257,7 @@ Streamchart.prototype.update = function(config) {
         .attr("d", pathArea(this))
         .style("fill", function(d) {
             if (d[0].key == config.hoveredCountry) {
-                return "rgba(0, 18, 255, 1)";
+                return "rgba(230, 11, 11, 0.5)";
             } else {
                 var continent = config.continentData[d[0].key];
                 if (continent) {
@@ -283,7 +283,7 @@ Streamchart.prototype.update = function(config) {
         .attr("width", this.size.barChartWidth)
         .style("fill", function(d) {
             if (config.hoveredCountry == d.key) {
-                return "rgba(0, 18, 255, 1)";
+                return "rgba(230, 11, 11, 0.5)";
             } else {
                 var continent = config.continentData[d.key];
                 if (continent) {
