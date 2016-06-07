@@ -144,6 +144,7 @@ function createGraphs(error, materialData, continentData) {
 
     var detailsCountryName = detailsDisplay.append("h2")
         .html("Details");
+    var detailsCommodity = detailsDisplay.append("p");
     var detailsYear = detailsDisplay.append("p")
         .classed("details-year", true);
     var detailsImport = detailsDisplay.append("p")
@@ -179,6 +180,7 @@ function createGraphs(error, materialData, continentData) {
             detailsImport.html("Import: " + d3.format(',')(hoveredData.get("Import")) + " kg");
             detailsExport.html("Export: " + d3.format(',')(hoveredData.get("Export")) + " kg");
         }
+        detailsCommodity.html(config.commodity);
         detailsYear.html("Year: " + config.year);
 
         // ---- Add the hover functions ----------------------------------------
