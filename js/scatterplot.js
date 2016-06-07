@@ -9,7 +9,7 @@
 
 // createFlowchart.
 // container => string => The name of the container this chart should go in.
-function createScatterplot(container, config) {
+function Scatterplot(container, config) {
 
     // Setup margins and graph size.
     var size = { margin: { top: 50, right: 50, bottom: 50, left: 50 } };
@@ -52,17 +52,16 @@ function createScatterplot(container, config) {
             .get(config.year)
             .get(config.commodity);
 
-        var exportData = data.get("Export").entries();
-        var importData = data.get("Import").entries();
+        console.log(data);
 
-        var datas = data.get("Country").entries();
-
+        /*
         // Scale domains.
         var maxScalex = Math.max(exportData);
         var maxScaleY = Math.max(importData);
 
         exportX.domain([0, maxScalex]);
         importY.domain([0, maxScaleY]);
+        */
 
         // Setup X and Y Axis
         var yAxis = d3.svg.axis().scale(importY).orient("left").ticks(10);
@@ -96,7 +95,7 @@ function createScatterplot(container, config) {
 
         // ---- Datapoints -----------------------------------------------------
         var datapoints = chart.selectAll("g")
-            .data(datas);
+            .data(data);
 
         // -- Enter --
         var newDatapoints = datapoints.enter().append("g")

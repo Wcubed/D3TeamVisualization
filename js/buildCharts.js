@@ -120,6 +120,9 @@ function createGraphs(error, materialData, continentData) {
     sliderContainer.append("p")
         .html("Select year:");
 
+    var scatterContainer = mainContainer.append("div")
+        .classed("scatterContainer", true);
+
     // Year selector.
     var yearSlider = sliderContainer.append("input")
         .classed("year-slider", true)
@@ -136,7 +139,7 @@ function createGraphs(error, materialData, continentData) {
 
     var streamchartImport = new Streamchart(".graph-container", config, "Import");
     var streamchartExport = new Streamchart(".graph-container", config, "Export");
-    //var scatterplot = createScatterplot("main", config);
+    var scatterplot = new Scatterplot(".scatterContainer", config);
 
     // Country details display.
     var detailsDisplay = mainContainer.append("div")
@@ -175,7 +178,7 @@ function createGraphs(error, materialData, continentData) {
 
         //flowchartImport.update(config);
         //flowchartExport.update(config);
-        //scatterplot.update(config);
+        scatterplot.update(config);
 
         streamchartImport.update(config);
         streamchartExport.update(config);
