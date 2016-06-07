@@ -117,14 +117,34 @@ function createGraphs(error, materialData, continentData) {
     commoditySelector.append("p")
         .html(function(d) { return d; });
 
+
+    // To contain the graphs in.
+    var graphContainer = mainContainer.append("div")
+        .classed("graph-container", true);
+
+
+    var sliderContainer = graphContainer.append("div");
+
+    sliderContainer.append("p")
+        .html("Select year:");
+
     // Year selector.
-    var yearSlider = filterContainer.append("input")
+    var yearSlider = sliderContainer.append("input")
         .classed("year-slider", true)
         .attr("type", "range")
         .attr("min", Math.min.apply(null, config.yearList))
         .attr("max", Math.max.apply(null, config.yearList))
         .attr("step", 1)
         .on("input", yearSliderInput);
+
+    // ---- Build the plots ----------------------------------------------------
+
+    //var flowchartImport = new Flowchart("main", config, "Import");
+    //var flowchartExport = new Flowchart("main", config, "Export");
+
+    var streamchartImport = new Streamchart(".graph-container", config, "Import");
+    var streamchartExport = new Streamchart(".graph-container", config, "Export");
+    //var scatterplot = createScatterplot("main", config);
 
     // Country details display.
     var detailsDisplay = mainContainer.append("div")
@@ -137,19 +157,6 @@ function createGraphs(error, materialData, continentData) {
         .classed("details-export", true);
     var detailsYear = detailsDisplay.append("p")
         .classed("details-year", true);
-
-    // To contain the graphs in.
-    mainContainer.append("div")
-        .classed("graph-container", true);
-
-    // ---- Build the plots ----------------------------------------------------
-
-    //var flowchartImport = new Flowchart("main", config, "Import");
-    //var flowchartExport = new Flowchart("main", config, "Export");
-
-    var streamchartImport = new Streamchart(".graph-container", config, "Import");
-    var streamchartExport = new Streamchart(".graph-container", config, "Export");
-    //var scatterplot = createScatterplot("main", config);
 
     // ---- Plot update function -----------------------------------------------
 

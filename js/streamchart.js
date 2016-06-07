@@ -16,13 +16,13 @@ function Streamchart(container, config, flowDirection) {
 
     // Determine sizes.
     this.size = {margin: {
-        top: 10,
-        bottom: 10,
-        left: 90,
-        right: 10,
+        top: 20,
+        bottom: 40,
+        left: 80,
+        right: 20,
         label: 10, // Margin between bars and labels.
     }};
-    this.size.totalWidth = 1000;
+    this.size.totalWidth = 900;
     this.size.totalHeight = 400;
     this.size.width = this.size.totalWidth - this.size.margin.left - this.size.margin.right;
     this.size.height = this.size.totalHeight - this.size.margin.top - this.size.margin.bottom;
@@ -51,7 +51,16 @@ function Streamchart(container, config, flowDirection) {
         .range([0, this.size.height])
         .domain([0, 5000000000]);
 
+    // Axis.
+    this.xAxis = d3.svg.axis()
+        .scale(this.flowXscale)
+        .orient("bottom")
+        .ticks(10, "g");
+
     // ---- Build the chart svg ------------------------------------------------
+    d3.select(container).append("h2")
+        .html(this.flowDirection);
+
     this.chart = d3.select(container).append("svg")
         .classed(this.class, true)
         .classed("streamchart", true)
@@ -59,6 +68,14 @@ function Streamchart(container, config, flowDirection) {
         .attr("height", this.size.totalHeight)
       .append("g") // Add the margin offset.
         .attr("transform", "translate(" + this.size.margin.left + "," + this.size.margin.top + ")");
+
+    // Background.
+    this.chart.append("rect")
+        .classed("background", true)
+        .attr("x", -this.size.margin.left)
+        .attr("y", -this.size.margin.top)
+        .attr("width", this.size.totalWidth)
+        .attr("height", this.size.totalHeight);
 
     // Add the containers.
     this.streamContainer = this.chart.append("g"); // Contains the streams.
@@ -68,6 +85,12 @@ function Streamchart(container, config, flowDirection) {
 
     this.yearLine = this.lineContainer.append("line")
         .classed("year-line", true);
+
+
+    this.chart.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0 ," + this.size.height + ")")
+        .call(this.xAxis);
 }
 
 // -----------------------------------------------------------------------------
@@ -107,9 +130,10 @@ Streamchart.prototype.update = function(config) {
 
     // Checks if the label fits within the height of the bar
     // and adjusts the opacity accordingly.
-    labelOpacity = function(c) {
+    labelOpacity = function(c, hoveredCountry) {
         return function(d) {
-            if (c.barYscale(d.y1 - d.y0) > c.fontSize) {
+            if (c.barYscale(d.y1 - d.y0) > c.fontSize ||
+                d.key == hoveredCountry) {
                 return 1;
             } else {
                 return 0;
@@ -226,17 +250,20 @@ Streamchart.prototype.update = function(config) {
         .duration(config.transitionDuration)
         .attr("d", pathArea(this))
         .style("fill", function(d) {
+            if (d[0].key == config.hoveredCountry) {
+                return "rgb(255, 255, 255)";
+            } else {
+                var continent = config.continentData[d[0].key];
+                if (continent) {
+                    return config.continentMeta[continent].col;
+                };
+            }
+        })
+        .style("stroke", function(d) {
             var continent = config.continentData[d[0].key];
             if (continent) {
                 return config.continentMeta[continent].col;
             };
-        })
-        .style("stroke", function(d) {
-            if (d[0].key == config.hoveredCountry) {
-                return "rgb(5, 143, 255)";
-            } else {
-                return "rgba(255, 255, 255, 0.08)";
-            }
         });
 
     datapoint.transition()
@@ -262,7 +289,7 @@ Streamchart.prototype.update = function(config) {
     label.transition()
         .duration(config.transitionDuration)
         .attr("transform", labelPos(this))
-        .style("opacity", labelOpacity(this));
+        .style("opacity", labelOpacity(this, config.hoveredCountry));
 
     label.select(".label-percentage")
         .html(function(d) { return Math.round(d.percentage * 10) / 10 + "%"; });
