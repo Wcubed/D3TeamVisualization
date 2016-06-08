@@ -106,7 +106,7 @@ p {
 .commodity-selector p {
     color: rgb(33,33,33);
     margin: 0;
-    font-size: 1.1rem;
+    font-size: 0.9rem;
     pointer-events: none;
 }
 
@@ -277,8 +277,15 @@ div.tooltip {
     pointer-events: none;
 }
 
-.scatterplot {
+.scatterContainer {
+    display: block;
+    position: relative;
+    margin: 0 auto 0;
     float: left;
+}
+
+.scatterplot {
+
 }
 
 .scatterplot .axis {
