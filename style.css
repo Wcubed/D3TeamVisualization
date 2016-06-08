@@ -264,17 +264,32 @@ p {
     display: none;
 }
 
-div.tooltip {   
-    position: absolute;         
-    text-align: center;         
-    width: 120px;                    
-    height: 50px;                   
-    padding: 15px;               
-    font: 12px sans-serif;      
-    background: white; 
-    border: 0px;        
-    border-radius: 8px;         
-    pointer-events: none;           
+div.tooltip {
+    position: absolute;
+    text-align: center;
+    width: 120px;
+    height: 50px;
+    padding: 15px;
+    font: 12px sans-serif;
+    background: white;
+    border: 0px;
+    border-radius: 8px;
+    pointer-events: none;
+}
+
+.scatterplot .axis {
+    fill: none !important;
+}
+
+.scatterplot .axis line,
+.scatterplot .axis path {
+    fill: none;
+    stroke: rgb(255, 255, 255);
+    shape-rendering: crispEdges;
+}
+
+.scatterplot text {
+    fill: rgb(255, 255, 255);
 }
 
 /*Took from: http://brennaobrien.com/blog/2014/05/style-input-type-range-in-every-browser.html */
@@ -284,10 +299,10 @@ div.tooltip {
 input[type=range] {
     /*removes default webkit styles*/
     -webkit-appearance: none;
-    
+
     /*fix for FF unable to apply focus style bug */
     border: 1px solid white;
-    
+
     /*required for proper track sizing in FF*/
 }
 input[type=range]::-webkit-slider-runnable-track {

@@ -1,7 +1,7 @@
 /*
  * scatterplot.js
  * Part of the Team Visualization.
- * Shows 
+ * Shows
  *
  * Author: Wybe Westra
  * Date: 30-05-2016
@@ -45,8 +45,8 @@ function Scatterplot(container, config) {
         .attr("transform", "translate(" + size.margin.left + "," + size.margin.top + ")");
 
     // Define the div for the tooltip
-    var div = d3.select("body").append("div")   
-        .attr("class", "tooltip")               
+    var div = d3.select("body").append("div")
+        .attr("class", "tooltip")
         .style("opacity", 0);
 
     // ---- Update function ----------------------------------------------------
@@ -75,8 +75,8 @@ function Scatterplot(container, config) {
         }
 
         console.log(" Export: " + maxExport + "Import: " + maxImport);
-        
-        
+
+
         // Scale domains.
         exportX.domain([0, maxExport]);
         importY.domain([0, maxImport]);
@@ -119,38 +119,41 @@ function Scatterplot(container, config) {
         // -- Enter --
         var newDatapoints = datapoints.enter().append("g")
             .classed(scatterplot.datapointClass, true)
-            .classed("dots", true)
+            .classed("dots", true);
 
         // -- Update --
-        chart.selectAll(".dots")
-          .append("circle")
+        newDatapoints.append("circle")
             .attr("class", "dot")
             .attr("r", 5)
-            .attr("cx", function(d){ 
-                if(d.value.get("Export") != null) { 
-                    return ( 15 + exportX(d.value.get("Export")) ) } 
-                else { return 15 }; 
-            })
-            .attr("cy", function(d) { 
-                if(d.value.get("Import") != null) { 
-                    return ( importY(d.value.get("Import")) - 10) } 
-                    else { return 10 }; 
-            })
             .style("fill", "rgb(121,134,203)")
             .on("mouseover", function(d){
                 //alert("Country: " + d.key + "  " + "Export: " + d.value.get("Export") + "  " + "Import: " + d.value.get("Import"));
-              div.transition()        
-                .duration(200)      
-                .style("opacity", .9);      
-              div.html("Country: " + d.key + "<br/>" + "Export: " + d.value.get("Export") + "<br/>" + "Import: " + d.value.get("Import"))  
-                .style("left", (d3.event.pageX) + "px")     
+              div.transition()
+                .duration(200)
+                .style("opacity", .9);
+              div.html("Country: " + d.key + "<br/>" + "Export: " + d.value.get("Export") + "<br/>" + "Import: " + d.value.get("Import"))
+                .style("left", (d3.event.pageX) + "px")
                 .style("top", (d3.event.pageY - 28) + "px");
             })
             .on("mouseout", function(d){
-              div.transition()        
-                .duration(500)      
+              div.transition()
+                .duration(500)
                 .style("opacity", 0);
             });
+
+        datapoints.select(".dot").transition()
+            .duration(config.transitionDuration)
+            .attr("cx", function(d){
+                if(d.value.get("Export") != null) {
+                    return ( 15 + exportX(d.value.get("Export")) ) }
+                else { return 15 };
+            })
+            .attr("cy", function(d) {
+                if(d.value.get("Import") != null) {
+                    return ( importY(d.value.get("Import")) - 10) }
+                    else { return 10 };
+            });
+
         // -- Remove --
         datapoints.exit().remove();
     }
