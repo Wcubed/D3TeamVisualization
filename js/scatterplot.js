@@ -49,6 +49,30 @@ function Scatterplot(container, config) {
         .attr("class", "tooltip")
         .style("opacity", 0);
 
+    // Draw X Axis
+    chart.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + size.height + ")")
+        .style("fill", "white")
+    .append("text")
+        .attr("class", "label")
+        .attr("x", size.width)
+        .attr("dy", -20)
+        .style("text-anchor", "end")
+        .text("Export (kg)");
+
+    // Draw Y Axis
+    chart.append("g")
+        .attr("class", "y axis")
+        .style("fill", "white")
+    .append("text")
+        .attr("class", "label")
+        .attr("transform", "rotate(-90)")
+        .attr("x", 0)
+        .attr("dy", -6)
+        .style("text-anchor", "end")
+        .text("Import (kg)");
+
     // ---- Update function ----------------------------------------------------
 
     scatterplot.update = function(config) {
@@ -86,31 +110,15 @@ function Scatterplot(container, config) {
         var xAxis = d3.svg.axis().scale(exportX).orient("bottom").ticks(5);
         var yAxis = d3.svg.axis().scale(importY).orient("right").ticks(5);
 
-        // Draw X Axis
-        chart.append("g")
-            .attr("class", "x axis")
-            .attr("transform", "translate(0," + size.height + ")")
-            .call(xAxis)
-            .style("fill", "white")
-        .append("text")
-            .attr("class", "label")
-            .attr("x", size.width)
-            .attr("dy", -20)
-            .style("text-anchor", "end")
-            .text("Export (kg)");
+        // Update X and Y axis.
 
-        // Draw Y Axis
-        chart.append("g")
-            .attr("class", "y axis")
-            .call(yAxis)
-            .style("fill", "white")
-        .append("text")
-            .attr("class", "label")
-            .attr("transform", "rotate(-90)")
-            .attr("x", 0)
-            .attr("dy", -6)
-            .style("text-anchor", "end")
-            .text("Import (kg)");
+        chart.select(".axis.y").transition()
+            .duration(config.transitionDuration)
+            .call(yAxis);
+
+        chart.select(".axis.x").transition()
+            .duration(config.transitionDuration)
+            .call(xAxis);
 
         // ---- Datapoints -----------------------------------------------------
         var datapoints = chart.selectAll("g")

@@ -277,6 +277,10 @@ div.tooltip {
     pointer-events: none;
 }
 
+.scatterplot {
+    float: left;
+}
+
 .scatterplot .axis {
     fill: none !important;
 }
