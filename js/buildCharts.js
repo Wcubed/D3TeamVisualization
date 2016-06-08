@@ -30,12 +30,12 @@ function createGraphs(error, materialData, continentData) {
         continentData: convertContinentdata(continentData),
 
         continentMeta: {
-            "Africa": {col: "rgba(12, 144, 229, 0.5)", i: 0},
-            "Asia": {col: "rgba(11, 230, 144, 0.5)", i: 1},
-            "Europe": {col: "rgba(11, 230, 33, 0.5)", i: 2},
-            "North America": {col: "rgba(94, 11, 230, 0.5)", i: 3},
-            "South America": {col: "rgba(230, 11, 83, 0.5)", i: 4},
-            "Oceania": {col: "rgba(230, 90, 11, 0.5)", i: 5},
+            "Africa": {col: "rgba(255,241,118, 0.5)", i: 0},
+            "Asia": {col: "rgba(0,176,255, 0.5)", i: 1},
+            "Europe": {col: "rgba(0,230,118, 0.5)", i: 2},
+            "North America": {col: "rgba(255,82,82, 0.5)", i: 3},
+            "South America": {col: "rgba(255,87,34, 0.5)", i: 4},
+            "Oceania": {col: "rgba(179,136,255, 0.5)", i: 5},
         },
 
         // ---- Filters ----
@@ -103,6 +103,7 @@ function createGraphs(error, materialData, continentData) {
     var commoditySelector = filterContainer.selectAll("div.commodity-selector")
         .data(Object.keys(config.commodityList))
       .enter().append("div")
+        //.attr("value", function(d){ return d } )
         .classed("commodity-selector", true)
         .on("click", commodityInput);
 

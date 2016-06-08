@@ -3,7 +3,7 @@
  * Part of the Team Visualization.
  * Shows 
  *
- * Authour: Wybe Westra
+ * Author: Wybe Westra
  * Date: 30-05-2016
  */
 
@@ -91,7 +91,7 @@ function Scatterplot(container, config) {
             .attr("class", "x axis")
             .attr("transform", "translate(0," + size.height + ")")
             .call(xAxis)
-            .style("fill", "green")
+            .style("fill", "white")
         .append("text")
             .attr("class", "label")
             .attr("x", size.width)
@@ -103,7 +103,7 @@ function Scatterplot(container, config) {
         chart.append("g")
             .attr("class", "y axis")
             .call(yAxis)
-            .style("fill", "green")
+            .style("fill", "white")
         .append("text")
             .attr("class", "label")
             .attr("transform", "rotate(-90)")
@@ -136,7 +136,7 @@ function Scatterplot(container, config) {
                     return ( importY(d.value.get("Import")) - 10) } 
                     else { return 10 }; 
             })
-            .style("fill", "red")
+            .style("fill", "rgb(121,134,203)")
             .on("mouseover", function(d){
                 //alert("Country: " + d.key + "  " + "Export: " + d.value.get("Export") + "  " + "Import: " + d.value.get("Import"));
               div.transition()        
