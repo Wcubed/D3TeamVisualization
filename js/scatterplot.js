@@ -34,6 +34,16 @@ function Scatterplot(container, config) {
     var importY = d3.scale.linear()
         .range([size.height, 0]);
 
+    var xAxis = d3.svg.axis()
+        .scale(exportX)
+        .orient("bottom")
+        .ticks(5);
+
+    var yAxis = d3.svg.axis()
+        .scale(importY)
+        .orient("right")
+        .ticks(5);
+
 
     // ---- Build the chart ----------------------------------------------------
 
@@ -85,6 +95,7 @@ function Scatterplot(container, config) {
         var maxExport = -1;
         var maxImport = -1;
 
+
         for (i=0; i<data.length; i++) {
 
             var prevExport = data[i].value.get("Export");
@@ -106,10 +117,6 @@ function Scatterplot(container, config) {
         importY.domain([0, maxImport]);
 
 
-        // Setup X and Y Axis
-        var xAxis = d3.svg.axis().scale(exportX).orient("bottom").ticks(5);
-        var yAxis = d3.svg.axis().scale(importY).orient("right").ticks(5);
-
         // Update X and Y axis.
 
         chart.select(".axis.y").transition()
@@ -121,8 +128,13 @@ function Scatterplot(container, config) {
             .call(xAxis);
 
         // ---- Datapoints -----------------------------------------------------
-        var datapoints = chart.selectAll("g")
-            .data(data);
+        // Key function.
+        var keyFn = function(d, i) {
+            return d.key;
+        };
+
+        var datapoints = chart.selectAll("g.dots")
+            .data(data, keyFn);
 
         // -- Enter --
         var newDatapoints = datapoints.enter().append("g")
