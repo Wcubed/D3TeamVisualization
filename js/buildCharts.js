@@ -110,6 +110,17 @@ function createGraphs(error, materialData, continentData) {
     commoditySelector.append("p")
         .html(function(d) { return d; });
 
+    // Scatterplot display
+    var scatterContainer = mainContainer.append("div")
+        .classed("scatterContainer", true);
+
+    // Country details display.
+    var detailsDisplay = mainContainer.append("div")
+        .classed("details-display", true);
+
+    // Continent labels box.
+    var continentLabels = mainContainer.append("div")
+        .classed("details-display", true);
 
     // To contain the graphs in.
     var graphContainer = mainContainer.append("div")
@@ -120,9 +131,6 @@ function createGraphs(error, materialData, continentData) {
 
     sliderContainer.append("p")
         .html("Select year:");
-
-    var scatterContainer = mainContainer.append("div")
-        .classed("scatterContainer", true);
 
     // Year selector.
     var yearSlider = sliderContainer.append("input")
@@ -151,8 +159,6 @@ function createGraphs(error, materialData, continentData) {
         streamchartExport.size.margin.right - 12.5 + "px");
 
     // Country details display.
-    var detailsDisplay = mainContainer.append("div")
-        .classed("details-display", true);
 
     var detailsCountryName = detailsDisplay.append("h2")
         .html("Details");
@@ -164,10 +170,6 @@ function createGraphs(error, materialData, continentData) {
     var detailsExport = detailsDisplay.append("p")
         .classed("details-export", true);
 
-
-    // Continent labels box.
-    var continentLabels = mainContainer.append("div")
-        .classed("details-display", true);
 
     // Create the labels.
     for (var cont in config.continentMeta) {
