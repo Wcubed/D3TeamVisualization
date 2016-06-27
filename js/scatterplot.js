@@ -141,28 +141,39 @@ function Scatterplot(container, config) {
             .classed(scatterplot.datapointClass, true)
             .classed("dots", true);
 
-        // -- Update --
+
         newDatapoints.append("circle")
             .attr("class", "dot")
-            .attr("r", 5)
-            .style("fill", "rgb(121,134,203)")
-            .on("mouseover", function(d){
-                //alert("Country: " + d.key + "  " + "Export: " + d.value.get("Export") + "  " + "Import: " + d.value.get("Import"));
-              div.transition()
-                .duration(200)
-                .style("opacity", .9);
-              div.html("Country: " + d.key + "<br/>" + "Export: " + d.value.get("Export") + "<br/>" + "Import: " + d.value.get("Import"))
-                .style("left", (d3.event.pageX) + "px")
-                .style("top", (d3.event.pageY - 28) + "px");
-            })
-            .on("mouseout", function(d){
-              div.transition()
-                .duration(500)
-                .style("opacity", 0);
-            });
+            .attr("r", 4);
+
+        // -- Update --
 
         datapoints.select(".dot").transition()
             .duration(config.transitionDuration)
+            .style("stroke", function(d) {
+                if (d.key == config.hoveredCountry) {
+                    // Tooltip.
+                    /*
+                    div.transition()
+                      .duration(200)
+                      .style("opacity", .9);
+                    div.html("Country: " + d.key + "<br/>" + "Export: " + d.value.get("Export") + "<br/>" + "Import: " + d.value.get("Import"))
+                      .style("left", (d3.event.pageX) + "px")
+                      .style("top", (d3.event.pageY - 28) + "px");
+                    */
+
+                    return "rgb(125, 203, 121)";
+                } else {
+                    return "rgb(121,134,203)";
+                }
+            })
+            .style("fill", function(d) {
+                if (d.key == config.hoveredCountry) {
+                    return "rgb(125, 203, 121)";
+                } else {
+                    return "rgba(0, 0, 0, 0)";
+                }
+            })
             .attr("cx", function(d){
                 if(d.value.get("Export") != null) {
                     return ( 15 + exportX(d.value.get("Export")) ) }

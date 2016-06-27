@@ -142,6 +142,14 @@ function createGraphs(error, materialData, continentData) {
     var streamchartExport = new Streamchart(".graph-container", config, "Export");
     var scatterplot = new Scatterplot(".scatterContainer", config);
 
+    // Set the year slider margins to match the year axis.
+    sliderContainer.style("margin-left",
+        streamchartExport.size.margin.left +
+        streamchartExport.size.barChartWidth +
+        streamchartExport.size.margin.interChart - 12.5 + "px");
+    sliderContainer.style("margin-right",
+        streamchartExport.size.margin.right - 12.5 + "px");
+
     // Country details display.
     var detailsDisplay = mainContainer.append("div")
         .classed("details-display", true);
@@ -217,6 +225,9 @@ function createGraphs(error, materialData, continentData) {
 
         d3.selectAll(streamchartExport.streamSelector)
             .on('mouseover', flowchartOverStream);
+
+        d3.selectAll(scatterplot.datapointSelector)
+            .on('mouseover', flowchartOverBar);
     }
 
     // Run the first update.
