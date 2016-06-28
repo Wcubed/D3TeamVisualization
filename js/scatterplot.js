@@ -117,13 +117,10 @@ function Scatterplot(container, config) {
         importY.domain([0, maxImport]);
 
 
-<<<<<<< HEAD
-=======
         // Setup X and Y Axis
         var xAxis = d3.svg.axis().scale(exportX).orient("bottom").ticks(3);
         var yAxis = d3.svg.axis().scale(importY).orient("right").ticks(4);
 
->>>>>>> 51d59ae27dc8cd8afcfa6b385f9f82127c66de73
         // Update X and Y axis.
 
         chart.select(".axis.y").transition()
@@ -151,30 +148,9 @@ function Scatterplot(container, config) {
 
         newDatapoints.append("circle")
             .attr("class", "dot")
-<<<<<<< HEAD
             .attr("r", 4);
 
         // -- Update --
-=======
-            .attr("r", 5)
-            .style("fill", "rgb(121,134,203)")
-            .style("opacity", "0.5")
-            .on("mouseover", function(d){
-                //alert("Country: " + d.key + "  " + "Export: " + d.value.get("Export") + "  " + "Import: " + d.value.get("Import"));
-              div.transition()
-                .duration(200)
-                .style("opacity", .9);
-              div.html("Country: " + d.key + "<br/>" + "Export: " + d.value.get("Export") + "<br/>" + "Import: " + d.value.get("Import"))
-                .style("left", (d3.event.pageX) + "px")
-                .style("top", (d3.event.pageY - 28) + "px");
-            })
-            .on("mouseout", function(d){
-              div.transition()
-                .duration(500)
-                .style("opacity", 0);
-            });
->>>>>>> 51d59ae27dc8cd8afcfa6b385f9f82127c66de73
-
         datapoints.select(".dot").transition()
             .duration(config.transitionDuration)
             .style("stroke", function(d) {
